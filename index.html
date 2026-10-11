@@ -235,6 +235,8 @@ footer{border-top:1px solid var(--line);padding-block:36px;color:var(--ink-2);fo
 .mk-pos{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.tiles span{background:#101E46;border-radius:8px;padding:12px 6px;text-align:center;font-size:11.5px;color:var(--ink)}
 .cart{background:#F4F1E8;color:#1B2140;border-radius:10px;padding:10px}.cart small{font-weight:700}.cart p{margin:6px 0;font-size:12px}.pay{display:flex;gap:6px;margin-top:10px}.pay span{flex:1;text-align:center;background:#2FBF94;color:#06231B;border-radius:6px;padding:6px 0;font-weight:700;font-size:11px}.pay span+span{background:#4C7DFF;color:#fff}
 @media (max-width:480px){.mk-pos{grid-template-columns:1fr}.mk-tix{grid-template-columns:1fr 1fr}.mk-tix .tk:last-child{grid-column:span 2}}
+.shot{margin:0;border-radius:14px;overflow:hidden;border:1px solid #2A3D78;background:#0B1532;box-shadow:0 18px 40px rgba(0,0,0,.35)}.shot img{display:block;width:100%;height:auto;max-height:560px;object-fit:cover;object-position:top}.shot figcaption{font-size:12.5px;color:var(--ink-2);padding:8px 12px;border-top:1px solid #2A3D78}
+.dg-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.dg-pair .shot img{max-height:330px}
 .dg-note{color:var(--ink-2);font-size:13px;margin-top:22px}
 .dg-dev{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(22px,4vw,48px);align-items:center;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:clamp(22px,4vw,40px)}
 @media (max-width:640px){.dg-dev{grid-template-columns:1fr}}
@@ -372,7 +374,7 @@ function home(){const nStay=DB.Locations.filter(l=>l.biz_id==='daleena'&&on(l)).
 <section id="digital-teaser"><div class="dg-teaser"><div><div class="eyebrow">KBK Digital · Digital transformation</div><h2 style="margin-top:10px">The apps behind our businesses</h2>
  <p class="lead" style="margin-top:14px">Our bookings, cleaning, finance, orders and kitchen all run on two apps built in-house by our founder. Now other businesses can use them too.</p>
  <div class="dg-apps"><span><b>KBKOp</b> · operations hub</span><span><b>MaiOrder</b> · POS, kitchen &amp; costing</span></div>
- <a class="read-btn" href="#digital">Explore our apps ${ARROW}</a></div><div>${MOCK.dash('Business dashboard','Live sales, cost and profit')}</div></div></section>
+ <a class="read-btn" href="#digital">Explore our apps ${ARROW}</a></div><div class="dg-pair"><figure class="shot"><img loading="lazy" src="${APPIMG['kbkop-home']}" alt="KBKOp management menu"><figcaption>KBKOp</figcaption></figure><figure class="shot"><img loading="lazy" src="${APPIMG['maiorder-start']}" alt="MaiOrder start screen"><figcaption>MaiOrder</figcaption></figure></div></div></section>
 <section id="why"><div class="eyebrow">Why one platform</div><h2 style="margin-top:10px">Everything we do, in one place</h2>
 <div class="strip"><div><h3>Real prices, always current</h3><p>Every price here comes from the same records our staff use.</p></div><div><h3>Straight to the right team</h3><p>Each business has its own WhatsApp line, so you reach the people who can help.</p></div><div><h3>Easy to find</h3><p>Every location links to Google Maps.</p></div></div></section>
 <section id="contact"><div class="eyebrow">Contact</div><h2 style="margin-top:10px">Talk to us</h2>
@@ -389,31 +391,34 @@ const FACTS={
  matsatay:['Satay production line','Satay ayam · daging · kambing','Goreng panas & blended drinks','TV for diners','Set up in 2 months'],
 };
 // ===== KBK Digital (apps) page =====
+const APPIMG={"maiorder-sell": "apps/maiorder-sell.webp", "kbkop-home": "apps/kbkop-home.webp", "kbkop-reservations": "apps/kbkop-reservations.webp", "kbkop-activity": "apps/kbkop-activity.webp", "kbkop-cleaning": "apps/kbkop-cleaning.webp", "maiorder-business": "apps/maiorder-business.webp", "kbkop-barber": "apps/kbkop-barber.webp", "maiorder-topmenu": "apps/maiorder-topmenu.webp", "maiorder-recipes": "apps/maiorder-recipes.webp", "maiorder-start": "apps/maiorder-start.webp", "maiorder-kitchen": "apps/maiorder-kitchen.webp"};
 const MOCK={
  dash:(t,c)=>`<div class="mk"><div class="mk-h"><span>${t}</span><i></i><i></i></div><div class="mk-cards"><div><small>Sales</small><b>RM ••••</b></div><div><small>Cost</small><b>RM •••</b></div><div class="g"><small>Profit</small><b>RM •••</b></div></div><div class="mk-bars">${[38,62,45,80,56,90,70,64,85,52,74,95].map((h,i)=>`<span style="height:${h}%;${i%3==2?'background:#4C7DFF':''}"></span>`).join('')}</div>${c?`<div class="mk-cap">${c}</div>`:''}</div>`,
  list:(t,rows)=>`<div class="mk"><div class="mk-h"><span>${t}</span><i></i><i></i></div>${rows.map(r=>`<div class="mk-row"><span class="dot" style="background:${r[2]||'#2FBF94'}"></span><span>${r[0]}</span><em>${r[1]}</em></div>`).join('')}</div>`,
  kitchen:()=>`<div class="mk"><div class="mk-h"><span>Kitchen board</span><i></i><i></i></div><div class="mk-tix">${[['#12','Satay Ayam Set ×2<br>Nasi Impit ×1','4 min',''],['#13','Char Kuey Teow ×1<br>Teh O Ais ×2','9 min',''],['#09','Mee Rebus ×3<br>Bungkus','17 min','late']].map(x=>`<div class="tk ${x[3]}"><b>${x[0]}</b><p>${x[1]}</p><small>${x[2]}</small></div>`).join('')}</div></div>`,
  pos:()=>`<div class="mk"><div class="mk-h"><span>Sell</span><i></i><i></i></div><div class="mk-pos"><div class="tiles">${['Satay Ayam','Satay Daging','Nasi Impit','Mee Rebus','Teh O Ais','Milo Ais','Kuey Teow','Cucur Udang','Laksa'].map(n=>`<span>${n}</span>`).join('')}</div><div class="cart"><small>Order #14 · Bungkus</small><p>Satay Ayam ×10</p><p>Nasi Impit ×1</p><p>Teh O Ais ×2</p><div class="pay"><span>Cash</span><span>Transfer</span></div></div></div></div>`,
 };
+const SHOT=(n,alt)=>`<figure class="shot"><img loading="lazy" src="${APPIMG[n]}" alt="${alt}"></figure>`;
 const APPS=[
  {id:'kbkop',name:'KBKOp',tag:'The operations hub for a multi-business group',
-  intro:'KBKOp is the app our own managers open every morning. One login shows the bookings, the cleaning, the spending and the profit of every KBK Citra Waja business, from the homestays and the inn to the barbershop, the stationery shop and the satay kedai.',
+  intro:'KBKOp is the app our own managers open every morning. One login shows the bookings, the cleaning, the daily sales and the costs of every KBK Citra Waja business, from the homestays and the inn to the barbershop, the stationery shop and the satay kedai.',
   who:'Best for: homestay and guesthouse operators, small hotels, and owners running several small businesses at once.',
   secs:[
-   ['Bookings & housekeeping','Reservations from Airbnb, Booking.com, Agoda and direct WhatsApp bookings sit in one timeline. Each check-out creates a cleaning task, and cleaner payments are recorded as the work is done.',MOCK.list('Today · Bookings',[['G1 · Check-in 3:00 PM','Booking.com'],['PR1MA · Check-out 12:00 PM','Airbnb','#4C7DFF'],['Inn Room 5 · Cleaning','In progress','#F5C451'],['Mutiara · Check-in 4:00 PM','Direct']])],
-   ['Finance in four clear buckets','Daily spending, inventory purchases (cash, transfer or online), employee salaries and facility costs. The four buckets always add up exactly to total operating cost, so the owner sees where every ringgit went.',MOCK.list('This month · Cost',[['Spending cost','RM ••••'],['Inventory cost','RM ••••','#4C7DFF'],['Employee cost','RM ••••','#F5C451'],['Facility cost','RM ••••','#B58CFF']])],
-   ['Business dashboard','Revenue against total operation for each enterprise, week by week and month by month, with profit worked out for you. No more end-of-month spreadsheets.',MOCK.dash('Business dashboard','Revenue vs total operation · weekly')],
-   ['Team & permissions','Attendance, overtime and part-time payments in one place. The Permission Hub decides who can see or edit each screen, so staff only see what they need.',MOCK.list('Team',[['Attendance · today','6 / 7'],['Overtime · this week','12 h','#F5C451'],['Permission Hub','4 roles','#4C7DFF']])],
+   ['Live reservations','Every room and every home on one timeline, with bookings from Agoda, Airbnb, Booking.com and WhatsApp in their own colours. The top band shows at a glance how many rooms are still free each night.',SHOT('kbkop-reservations','KBKOp reservations timeline')],
+   ['Cleaning turnover','Each check-out becomes a cleaning job. Staff tap it to record the cleaning cost, and the board shows what is recorded and what is still pending.',SHOT('kbkop-cleaning','KBKOp cleaning board')],
+   ['Bookings feed with one-tap WhatsApp','New reservations, payment status (deposit or paid in full) and changes appear in one feed, with a WhatsApp button to reach the guest straight away.',SHOT('kbkop-activity','KBKOp booking activity feed')],
+   ['Daily sales for every shop','The barbershop, stationery shop and satay kedai each record daily cash and transfer sales. KBKOp checks the cash against what was collected and flags any difference, so leakage is caught the same day.',SHOT('kbkop-barber','KBKOp daily sales and cash check')],
+   ['Company management in one place','Business dashboard, human resources, finance ledger with audit log, inventory and hotel consumables, backups and an employee hub for payslips. Each person only sees what their role allows.',SHOT('kbkop-home','KBKOp management menu')],
   ]},
  {id:'maiorder',name:'MaiOrder',tag:'Point-of-sale, kitchen and costing for food businesses',
   intro:'MaiOrder runs Mat Satay Kodiang from the first order to the end-of-day profit. Staff take orders on a phone or tablet, the kitchen sees them instantly, and every sale is costed from the real recipe, so the owner knows the profit of each plate.',
   who:'Best for: kedai makan, cafés, food stalls and small restaurants.',
   secs:[
-   ['Fast selling','Tap the menu to build an order: sets, dine-in or bungkus, customer name and remarks. Pay by cash or transfer, and the order number restarts every day.',MOCK.pos()],
-   ['Live kitchen board','Orders appear in the kitchen the moment they are taken. A ticket turns red after 15 minutes, so no customer is forgotten during the dinner rush.',MOCK.kitchen()],
-   ['Recipes & real costing','Every menu has a recipe. Ingredient prices update from actual purchases, so each sale records its true cost. If a purchase was keyed wrongly, one “Recalculate cost” button corrects past sales after a preview.',MOCK.list('Recipe · Satay Ayam Set',[['Chicken, marinade, lidi','RM •.••'],['Kuah kacang','RM •.••','#F5C451'],['Nasi impit, timun, bawang','RM •.••','#4C7DFF'],['Cost per set','RM •.••','#B58CFF']])],
-   ['Stock, purchases & packaging','Ingredient stock, purchase history with search, finished-goods balances and packaging use, all updated as you sell and buy.',MOCK.list('Stock',[['Ayam (kg)','OK'],['Kuah kacang (batch)','Low','#F5C451'],['Bungkus containers','OK'],['Lidi satay','Reorder','#FF8A8A']])],
-   ['Business insight & control','Sales, cost and profit by day or month, best sellers with medals, and cash vs transfer at a glance. Staff PINs, permissions and a master activity log keep everything accountable.',MOCK.dash('Business','Best sellers · trend · cash vs transfer')],
+   ['Fast selling','Tap the menu to build an order, choose dine-in or bungkus, add the customer name, then charge by cash or transfer. Pending orders and staff meals are handled too, and every order is recorded with its time and payment.',SHOT('maiorder-sell','MaiOrder sell screen')],
+   ['Live kitchen board','Orders appear in the kitchen the moment they are taken, with a running timer. A ticket turns red after 15 minutes, so no customer is forgotten during the dinner rush.',SHOT('maiorder-kitchen','MaiOrder kitchen board')],
+   ['Recipes & real costing','Every menu has a recipe with its batch yield. Ingredient prices come from actual purchases (the last five buys, averaged), so each sale records its true cost. Stock, purchases and packaging are tracked alongside.',SHOT('maiorder-recipes','MaiOrder recipe costing')],
+   ['Know your best sellers','See what sells most by category for today, yesterday, 3, 7 or 30 days, so the kitchen knows exactly what to prepare.',SHOT('maiorder-topmenu','MaiOrder top menu ranking')],
+   ['Profit trend & recalculate cost','Profit, sales and cost by day or month, with each day tappable for details. If a purchase was keyed wrongly, one “Recalculate cost” button corrects past sales after a preview. Staff PINs, permissions and a master activity log keep everything accountable.',SHOT('maiorder-business','MaiOrder business trend')],
   ]},
 ];
 function digitalPage(){const em='kbkcitrawaja91@gmail.com',wa='60197512017';
@@ -437,7 +442,7 @@ ${APPS.map(a=>`<section class="dg-app" id="app-${a.id}"><div class="dg-apphead">
  <li><h3>Live demo</h3><p>We walk you through the app with your own way of working in mind.</p></li>
  <li><h3>Quotation</h3><p>A clear quotation based on what you need, with setup tailored to your business.</p></li>
  <li><h3>Setup & training</h3><p>We set it up with your menu, rooms or products and train your team until they are comfortable.</p></li></ol>
- <p class="dg-note">Screens on this page are illustrations. The user manual shows the real app.</p></section>
+ <p class="dg-note">Screens on this page are real screenshots from our own apps. Guest names and money amounts are blurred for privacy.</p></section>
 <section id="dg-contact"><div class="dg-dev"><div class="t-portrait"><img src="${CEO}" alt="Ku Mohd Afif Bin Ku Ishak"></div>
  <div><div class="eyebrow">Talk to the developer</div><h2 style="margin-top:10px">Ku Mohd Afif Bin Ku Ishak</h2><p class="dg-role">Founder, KBK Citra Waja · Engineer &amp; app developer</p>
  <p style="color:var(--ink-2);margin:12px 0 0;max-width:60ch">Send an email to request the user manual for an overview of the apps. I will then arrange a demo with you and prepare a quotation that fits your business.</p>
