@@ -392,6 +392,8 @@ const FACTS={
 };
 // ===== KBK Digital (apps) page =====
 const APPIMG={"maiorder-sell": "apps/maiorder-sell.webp", "kbkop-home": "apps/kbkop-home.webp", "kbkop-reservations": "apps/kbkop-reservations.webp", "kbkop-activity": "apps/kbkop-activity.webp", "kbkop-cleaning": "apps/kbkop-cleaning.webp", "maiorder-business": "apps/maiorder-business.webp", "kbkop-barber": "apps/kbkop-barber.webp", "maiorder-topmenu": "apps/maiorder-topmenu.webp", "maiorder-recipes": "apps/maiorder-recipes.webp", "maiorder-start": "apps/maiorder-start.webp", "maiorder-kitchen": "apps/maiorder-kitchen.webp"};
+let ROUTE_PATH=()=>{const p=location.pathname.replace(/^\/+|\/+$/g,'');return /^[a-z0-9-]+$/.test(p)?p:''},PRETTY=raw=>{if(raw==='admin')return;const want=(!raw||raw==='home')?'/':'/'+raw;if(location.pathname+location.hash!==want)history.replaceState(null,'',want)};
+addEventListener('popstate',()=>{if(!location.hash)render()});
 const MOCK={
  dash:(t,c)=>`<div class="mk"><div class="mk-h"><span>${t}</span><i></i><i></i></div><div class="mk-cards"><div><small>Sales</small><b>RM ••••</b></div><div><small>Cost</small><b>RM •••</b></div><div class="g"><small>Profit</small><b>RM •••</b></div></div><div class="mk-bars">${[38,62,45,80,56,90,70,64,85,52,74,95].map((h,i)=>`<span style="height:${h}%;${i%3==2?'background:#4C7DFF':''}"></span>`).join('')}</div>${c?`<div class="mk-cap">${c}</div>`:''}</div>`,
  list:(t,rows)=>`<div class="mk"><div class="mk-h"><span>${t}</span><i></i><i></i></div>${rows.map(r=>`<div class="mk-row"><span class="dot" style="background:${r[2]||'#2FBF94'}"></span><span>${r[0]}</span><em>${r[1]}</em></div>`).join('')}</div>`,
@@ -565,7 +567,7 @@ function openRoom(k){
   const [loc,item]=k.split('|'),l=DB.Locations.find(x=>x.loc_id===loc),r=DB.Prices.map(fix).find(p=>p.loc_id===loc&&p.item===item),b=BIZ.find(x=>x.biz_id==='daleena');
   const note=DB.RoomNotes[k]||r.detail||'';CUR={k,i:0,edit:false};
   const el=document.getElementById('ov');
-  const shareText=`${l.name} – ${item}\n${priceTxt(r).replace(/<[^>]+>/g,'')} per night${note?' · '+note:''}\nSee all photos and book here: ${SITE_URL}#${roomSlug(k)}`;
+  const shareText=`${l.name} – ${item}\n${priceTxt(r).replace(/<[^>]+>/g,'')} per night${note?' · '+note:''}\nSee all photos and book here: ${SITE_URL}${roomSlug(k)}`;
   el.innerHTML=`<div class="ovbox" role="dialog" aria-modal="true" aria-label="${esc(item)}">
    <div class="ovtop"><div><h3>${esc(item)} <span style="color:var(--accent);font-weight:600">· ${priceTxt(r)}/night</span></h3><small>${esc(l.name)}${note?' · '+esc(note):''}</small></div>
     <div class="ovact">${CAN_EDIT?'<button class="edbtn" id="edbtn">Edit photos</button>':''}<a class="sharebtn" href="${shareWA(shareText)}" target="_blank" rel="noopener" aria-label="Share on WhatsApp">${WA_ICON}<span>Share</span></a><button class="x" id="ovx" aria-label="Close">×</button></div></div>
@@ -624,7 +626,7 @@ function reviewsSection(id){const R=(DB.Reviews||{})[id]||{items:[]};const b=BIZ
  <div class="rv-more">${(R.all||[]).length?(cards?`<p>Showing ${Math.min(R.items.length,4)} of our Google reviews. <b>Click here to see all reviews:</b></p>`:'')+`<div class="rv-all">${R.all.map(([n,l])=>`<a href="${esc(l)}" target="_blank" rel="noopener">${cards?'':'Write a review for '}${esc(n)} on Google ↗</a>`).join('')}</div>`:''}</div></section>`}
 function ent(id){const b=BIZ.find(x=>x.biz_id===id),H=by('Highlights',id).sort((a,b)=>a.sort-b.sort),S=DB.Steps.filter(s=>s.biz_id===id).sort((a,b)=>a.step_no-b.step_no),L=by('Locations',id);
 return `<a class="back" href="#home" data-goto="businesses">← All businesses</a>
-<div class="ent-hero">${art(id)}<div class="in"><img class="ent-logo" src="${LOGO[id]}" alt="${esc(b.name)} logo"><div class="eyebrow" style="color:#9FE8CF">${esc(b.kind)}</div><h1>${esc(b.name)}</h1><p>${esc(b.tagline)}</p><a class="sharebtn hero-share" href="${shareWA(`${b.name} – ${b.tagline}\n${SITE_URL}#${id}`)}" target="_blank" rel="noopener">${WA_ICON}<span>Share on WhatsApp</span></a></div></div>
+<div class="ent-hero">${art(id)}<div class="in"><img class="ent-logo" src="${LOGO[id]}" alt="${esc(b.name)} logo"><div class="eyebrow" style="color:#9FE8CF">${esc(b.kind)}</div><h1>${esc(b.name)}</h1><p>${esc(b.tagline)}</p><a class="sharebtn hero-share" href="${shareWA(`${b.name} – ${b.tagline}\n${SITE_URL}${id}`)}" target="_blank" rel="noopener">${WA_ICON}<span>Share on WhatsApp</span></a></div></div>
 <section><div class="eyebrow">Why us</div><h2 style="margin-top:10px">What makes us different</h2>
 <div class="cols3">${H.map(h=>`<div class="feat"><h3>${esc(h.title)}</h3><p>${/your own words/i.test(h.text)?TBD('Your words'):esc(h.text)}</p></div>`).join('')}</div></section>
 ${id==='daleena'?homesSection(b):`<section><div class="eyebrow">${id==='matsatay'?'Menu':'Services & prices'}</div><h2 style="margin-top:10px">${id==='matsatay'?'Our menu':'What we serve'}</h2>
@@ -639,16 +641,17 @@ ${(DB.Gallery&&DB.Gallery[id]&&DB.Gallery[id].length)?`<section><div class="eyeb
 ${reviewsSection(id)}
 <section><div class="contact"><div><div class="eyebrow">Book & contact</div><h2 style="margin-top:10px">Reserve with us</h2>
 <dl style="margin-top:24px"><dt>WhatsApp</dt><dd>${b.whatsapp?esc(b.whatsapp):TBD()}</dd><dt>Email</dt><dd>${b.email?esc(b.email):TBD()}</dd>${fbOk(b.facebook_url)?`<dt>Facebook</dt><dd><a class="fb" href="${esc(b.facebook_url)}" target="_blank" rel="noopener">Visit our page ↗</a></dd>`:''}</dl></div>
-<div class="cta-box"><h3>Ready?</h3><p>Message ${esc(b.name)} on WhatsApp with what you need.</p>${b.whatsapp?`<a class="wa-btn" href="${wa(b.whatsapp)}" target="_blank" rel="noopener">Chat on WhatsApp</a>`:TBD('WhatsApp number')} <a class="sharebtn" style="margin-left:8px" href="${shareWA(`${b.name} – ${b.tagline}\n${SITE_URL}#${id}`)}" target="_blank" rel="noopener">${WA_ICON}<span>Share</span></a></div></div></section>`}
+<div class="cta-box"><h3>Ready?</h3><p>Message ${esc(b.name)} on WhatsApp with what you need.</p>${b.whatsapp?`<a class="wa-btn" href="${wa(b.whatsapp)}" target="_blank" rel="noopener">Chat on WhatsApp</a>`:TBD('WhatsApp number')} <a class="sharebtn" style="margin-left:8px" href="${shareWA(`${b.name} – ${b.tagline}\n${SITE_URL}${id}`)}" target="_blank" rel="noopener">${WA_ICON}<span>Share</span></a></div></div></section>`}
 
 document.getElementById('hdrlogo').src=LOGO.kbk;
 document.getElementById('snap').textContent='Data snapshot: '+DB.snapshot;
 const app=document.getElementById('app');let pending=null;
-function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1);let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital';app.innerHTML=id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();document.title=(id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
+function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}CURID=id;PRETTY(rawId);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital';app.innerHTML=id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();document.title=(id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
  if(deepRoom){const r=document.querySelector(`[data-room="${deepRoom}"]`);if(r){r.scrollIntoView({block:'center'});OV=r;openRoom(deepRoom)}return}
  if(pending&&!b&&!isStory){const el=document.getElementById(pending);pending=null;if(el){el.scrollIntoView();return}}window.scrollTo(0,0)}
 document.addEventListener('click',e=>{const a=e.target.closest('[data-goto]');if(!a)return;const t=a.dataset.goto;
- const cur=location.hash.slice(1);if(cur==='digital'&&t.startsWith('dg-')){const el=document.getElementById(t);if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}return}if(cur!=='story'&&cur!=='digital'&&!BIZ.find(x=>x.biz_id===cur)){const el=document.getElementById(t);if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}}else pending=t});
+ const cur=CURID;if(cur==='digital'&&t.startsWith('dg-')){const el=document.getElementById(t);if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}return}if(cur!=='story'&&cur!=='digital'&&!BIZ.find(x=>x.biz_id===cur)){const el=document.getElementById(t);if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}}else pending=t});
+let CURID='';
 addEventListener('hashchange',render);render();
 </script>
 <script>
