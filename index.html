@@ -355,6 +355,42 @@ footer{border-top:1px solid var(--line);padding-block:36px;color:var(--ink-2);fo
 .cfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg-2)}
 .cfoot .wa-btn{border:0;cursor:pointer;font:inherit;font-weight:700;padding:11px 20px}.cfoot .wa-btn:disabled{opacity:.4;cursor:default}
 
+body.focus header,body.focus footer{display:none}
+.stay-bar{position:sticky;top:0;z-index:12;display:flex;align-items:center;gap:12px;margin-inline:calc(-1*clamp(16px,4vw,40px));padding:10px clamp(16px,4vw,40px);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.stay-bar img{width:40px;height:40px;border-radius:10px;object-fit:contain}.stay-bar div{flex:1;min-width:0}.stay-bar b{display:block;font-size:15px}.stay-bar small{color:var(--ink-2);font-size:12.5px}
+.stay-bar .x{display:grid;place-items:center;text-decoration:none}
+.stay-hero{grid-template-columns:1fr}
+body.focus .cart-box.inline .cart-top{top:61px}
+.stay-form{grid-template-columns:2fr 1fr}@media (max-width:560px){.stay-form{grid-template-columns:2fr 1fr}.stay-form label:first-child{grid-column:auto}}
+.sstep h4{display:flex;align-items:center;gap:10px;margin:20px 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.sn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#06231B;display:grid;place-items:center;font-size:12.5px;font-weight:800;letter-spacing:0}
+.sgrp{margin-top:10px}.sgrp-h{font-size:13.5px;color:var(--ink-2);margin:12px 2px 6px}.sgrp-h a{color:var(--accent)}
+.sr{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--bg)}
+.sr.on{border-color:var(--accent);background:rgba(47,191,148,.08)}
+.sr-ph{position:relative;width:88px;height:66px;border:0;padding:0;border-radius:8px;overflow:hidden;background:#050a1c;cursor:pointer}
+.sr-ph img{width:100%;height:100%;object-fit:cover;display:block}.sr-ph span{position:absolute;left:4px;bottom:4px;background:rgba(5,10,28,.75);color:#fff;font-size:10.5px;padding:1px 6px;border-radius:999px}
+.sr-main{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;cursor:pointer;min-width:0}
+.sr-main input{width:20px;height:20px;accent-color:var(--accent);margin:0}
+.sr-t b{display:block;font-size:15px}.sr-t small{display:block;color:var(--ink-2);font-size:12.5px;line-height:1.35;margin-top:2px}
+.sr-p{text-align:right}.sr-p b{display:block;color:var(--accent);font-size:16px}.sr-p small{color:var(--ink-2);font-size:11.5px}
+.scal-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 2px}.scal-h b{font-size:18px}
+.scal-nav{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--ink);font-size:22px;cursor:pointer}.scal-nav:disabled{opacity:.3;cursor:default}
+.scal-tip{color:var(--ink-2);font-size:14px;margin:6px 0 8px}.scal-tip b{color:var(--ink)}
+[data-cal] .cwk{padding:6px 0;border:0}
+.cd i{font-style:normal;font-size:10px;color:var(--accent);font-weight:600;line-height:1}.cd i.lo{color:var(--tbd)}
+.clegend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;color:var(--ink-2);font-size:12.5px}.clegend i{font-style:normal;color:var(--accent);font-weight:700}.clegend .bkx{text-decoration:line-through;color:var(--ink-2)}
+.bhead{display:flex;gap:12px;align-items:flex-start}
+.bsteps{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:10px}
+.bsteps li{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg)}
+.bsteps li>div{display:grid;gap:6px;min-width:0;flex:1}.bsteps strong{font-size:15px}.bsteps p{margin:0}
+.bsteps .wa-btn{justify-self:start}.bsteps .payqr{justify-self:start;width:min(240px,100%)}
+.bnote{color:var(--ink-2);font-size:13px;margin:2px 0 0}
+.bbig{justify-content:center}
+.stay-done{padding:18px}
+[data-cal]{max-width:560px}.stay-done .bdone{max-width:620px}
+.stay-box .cart-sum{align-items:flex-start}.stay-box .cart-chips{max-height:none}.sgo{margin-top:12px;width:100%}
+@media (max-width:560px){.stay-box .cart-top{gap:8px}.stay-box .cart-act .wa-btn{padding:8px 14px}}
+
 
 .ovact{display:flex;align-items:center;gap:8px;flex:none}
 .sharebtn{display:inline-flex;align-items:center;gap:6px;background:#1FA855;color:#fff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
@@ -679,90 +715,168 @@ async function addFiles(files){const k=CUR.k,st=document.getElementById('edst');
   st.textContent='';if(ids.length){const o=OVR[k]||{};await saveRoom(k,{added:[...(o.added||[]),...ids]});CUR.i=photosFor(k).length-1;drawGallery();toast(ids.length+' photo'+(ids.length>1?'s':'')+' added')}}
 function shrink(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/webp',0.8)};im.onerror=()=>rej(new Error('Not an image'));im.src=u})}
 
-// ---- room availability (Supabase: web_availability / web_hold) ----
+// ---- room availability (Supabase: web_room_left / web_availability / web_hold) ----
 const AV_SB='https://yztfmdrodxgmamamhshf.supabase.co',AV_KEY='sb_publishable_cywx6nLhT1MLMiYV_Dmrnw_K5R0Ycdq';
-let AVAIL=null,AVAIL_OK=false,AVAIL_AT=0;
+const ROOM_CAP={'inn|Double':5};
+const STAY_PAY_URL='https://kbkcitrawaja.my/pay-stay',FIN_WA='+60 19-751 2017';
+const BM_NOTE={'inn|Double':'Bilik 4 hingga 8 · 2 tetamu','inn|Deluxe Double':'Bilik 1 · katil queen · 2 tetamu','inn|Twin':'Bilik 2 · 2 katil single · 2 tetamu','inn|Family':'Bilik 9 · keluarga','inn|Deluxe Family':'Bilik 3 · keluarga, lebih luas',
+ 'kodiang|G1':'Katil queen + ruang tamu · hingga 4 tetamu','kodiang|G2':'Bilik bajet · 2 dewasa','prima|PR1MA Unit 1132':'Seluruh unit · 4 bilik tidur · hingga 12 tetamu','mutiara|Mutiara Unit 288':'Seluruh unit · 3 bilik tidur · hingga 9 tetamu'};
+let AVAIL=null,AVAIL_OK=false,AVAIL_AT=0,AVAIL_CNT=false;
 async function avRpc(fn,body){const r=await fetch(AV_SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:AV_KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})});if(!r.ok)throw new Error('rpc '+r.status);return r.json()}
 async function loadAvail(force){if(!force&&AVAIL&&Date.now()-AVAIL_AT<120000)return AVAIL;
-  try{const j=await avRpc('web_availability',{p_days:200});AVAIL={};for(const u in j)AVAIL[u]=new Set(j[u]);AVAIL_OK=true}catch(e){AVAIL=AVAIL||{};AVAIL_OK=false}
-  AVAIL_AT=Date.now();return AVAIL}
+  const A={};let ok=false,cnt=false;
+  try{const j=await avRpc('web_room_left',{p_days:200});for(const u in j)A[u]={c:+j[u].c||1,u:j[u].u||{}};ok=true;cnt=true}
+  catch(e){try{const j=await avRpc('web_availability',{p_days:200});for(const u in j){const c=ROOM_CAP[u]||1,m={};j[u].forEach(d=>m[d]=c);A[u]={c,u:m}}ok=true}catch(e2){}}
+  if(ok||!AVAIL){AVAIL=A;AVAIL_OK=ok;AVAIL_CNT=cnt}AVAIL_AT=Date.now();return AVAIL}
+const capOf=k=>(AVAIL&&AVAIL[k]&&AVAIL[k].c)||ROOM_CAP[k]||1;
+const leftOn=(k,d)=>{const a=AVAIL&&AVAIL[k];return capOf(k)-((a&&a.u&&a.u[d])||0)};
 const MYT=()=>new Date(Date.now()+8*36e5).toISOString().slice(0,10);
 const dAdd=(d,n)=>{const x=new Date(d+'T00:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
 const dDiff=(a,b)=>Math.round((new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5);
 const dFmt=(d,o)=>new Date(d+'T00:00:00Z').toLocaleDateString('ms-MY',Object.assign({timeZone:'UTC',weekday:'short',day:'numeric',month:'short'},o||{}));
 const BM_MON=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
-function openCalendar(k,price,sel,onDone){
-  const booked=(AVAIL&&AVAIL[k])||new Set(),today=MYT(),last=dAdd(today,199);let ci=sel.ci||'',co=sel.co||'';
+const CAL_DAYS=199;
+// tap a day: updates st {ci,co}; returns an error text or ''
+function calTap(k,st,d){const full=x=>leftOn(k,x)<=0;
+  if(!st.ci||st.co||d<=st.ci){if(full(d))return 'Tarikh ini sudah penuh.';st.ci=d;st.co='';return ''}
+  for(let x=st.ci;x<d;x=dAdd(x,1))if(full(x)){if(!full(d)){st.ci=d;st.co='';return ''}return 'Tarikh ini sudah penuh.'}
+  if(dDiff(st.ci,d)>30)return 'Maksimum 30 malam bagi setiap tempahan.';
+  st.co=d;return ''}
+function monthGrid(k,price,yy,mm,st){const today=MYT(),last=dAdd(today,CAL_DAYS),p2=n=>String(n).padStart(2,'0');
+  const first=`${yy}-${p2(mm+1)}-01`,dim=new Date(Date.UTC(yy,mm+1,0)).getUTCDate(),lead=(new Date(first+'T00:00:00Z').getUTCDay()+6)%7;
+  let block=null;if(st.ci&&!st.co){for(let x=st.ci;x<=last;x=dAdd(x,1))if(leftOn(k,x)<=0){block=x;break}}
+  let cells='<span class="ce"></span>'.repeat(lead);
+  for(let dd=1;dd<=dim;dd++){const d=`${yy}-${p2(mm+1)}-${p2(dd)}`,past=d<today||d>last,left=leftOn(k,d),full=left<=0;
+    let cls='cd',dis=past,lab=rm(price),cnt='';
+    if(!past){if(st.ci&&!st.co&&d>st.ci){dis=!!(block&&d>block);if(full&&d===block){cls+=' coonly';lab='Keluar'}}else dis=full;
+      if(full&&!cls.includes('coonly')){cls+=' bk';lab='Penuh'}
+      else if(AVAIL_CNT&&d!==st.co&&!full)cnt=`<i class="${left<=1?'lo':''}">${left} lagi</i>`}
+    else cls+=' ps';
+    if(d===st.ci){cls+=' sel';lab='Masuk';cnt=''}else if(d===st.co){cls+=' sel';lab='Keluar';cnt=''}else if(st.ci&&st.co&&d>st.ci&&d<st.co)cls+=' rng';
+    cells+=`<button type="button" class="${cls}" data-d="${d}"${dis?' disabled':''} aria-label="${dFmt(d,{year:'numeric'})}${full?' – penuh':cnt?' – '+left+' bilik lagi':''}"><b>${dd}</b><small>${lab}</small>${cnt}</button>`}
+  return `<div class="cg">${cells}</div>`}
+const calLegend=()=>AVAIL_OK?'<div class="clegend">'+(AVAIL_CNT?'<span><i>5 lagi</i> bilik masih kosong</span>':'')+'<span><b class="bkx">15</b> penuh</span></div>':'<div class="clegend"><span>Kekosongan tidak dapat disemak sekarang. Admin akan sahkan di WhatsApp.</span></div>';
+const WKH='<div class="cwk"><span>Isn</span><span>Sel</span><span>Rab</span><span>Kha</span><span>Jum</span><span>Sab</span><span>Ahd</span></div>';
+// full-screen calendar (used from the room photo overlay)
+function openCalendar(k,price,sel,onDone){const st={ci:sel.ci||'',co:sel.co||''},today=MYT(),last=dAdd(today,CAL_DAYS);
   const cal=document.createElement('div');cal.className='cal';cal.setAttribute('role','dialog');cal.setAttribute('aria-modal','true');cal.setAttribute('aria-label','Pilih tarikh');
-  const firstBlock=from=>{for(let d=from;d<=last;d=dAdd(d,1))if(booked.has(d))return d;return null};
   function months(){let out='',y=+today.slice(0,4),m=+today.slice(5,7)-1;
-    for(let i=0;i<7;i++){const mm=(m+i)%12,yy=y+Math.floor((m+i)/12),first=`${yy}-${String(mm+1).padStart(2,'0')}-01`;
-      const dim=new Date(Date.UTC(yy,mm+1,0)).getUTCDate(),lead=(new Date(first+'T00:00:00Z').getUTCDay()+6)%7;
-      let cells='<span class="ce"></span>'.repeat(lead);
-      for(let dd=1;dd<=dim;dd++){const d=`${yy}-${String(mm+1).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
-        const past=d<today||d>last,bk=booked.has(d);let cls='cd',dis=past;
-        if(ci&&!co){const fb=firstBlock(ci);if(d<=ci){dis=past||bk}else{dis=past||(fb&&d>fb)}}
-        else dis=past||bk;
-        if(bk)cls+=' bk';if(past)cls+=' ps';
-        if(d===ci||d===co)cls+=' sel';else if(ci&&co&&d>ci&&d<co)cls+=' rng';
-        if(ci&&!co&&!dis&&!past&&d>ci&&bk)cls+=' coonly';
-        cells+=`<button type="button" class="${cls}" data-d="${d}"${dis?' disabled':''} aria-label="${dFmt(d,{year:'numeric'})}${bk?' – penuh':''}"><b>${dd}</b><small>${d===co?'Keluar':d===ci?'Masuk':bk?(ci&&!co&&d>ci&&!dis?'Keluar':'Penuh'):rm(price)}</small></button>`}
-      if(first>last)break;
-      out+=`<div class="cm"><h4>${BM_MON[mm]} ${yy}</h4><div class="cg">${cells}</div></div>`}
-    return out}
-  function draw(keep){const sc=cal.querySelector('.cbody'),top=sc?sc.scrollTop:0;
-    const n=ci&&co?dDiff(ci,co):0;
-    cal.innerHTML=`<div class="chead"><button type="button" class="x" data-x aria-label="Tutup">×</button><div><b>${ci?(co?`${dFmt(ci)} → ${dFmt(co)}`:`${dFmt(ci)} → pilih daftar keluar`):'Pilih tarikh daftar masuk'}</b><small>${n?`${n} malam · ${rm(price*n)}`:(AVAIL_OK?'Tarikh bergaris = sudah ditempah':'Kekosongan tidak dapat disemak sekarang')}</small></div></div>
-     <div class="cwk"><span>Isn</span><span>Sel</span><span>Rab</span><span>Kha</span><span>Jum</span><span>Sab</span><span>Ahd</span></div>
-     <div class="cbody">${months()}</div>
+    for(let i=0;i<8;i++){const mm=(m+i)%12,yy=y+Math.floor((m+i)/12);if(`${yy}-${String(mm+1).padStart(2,'0')}-01`>last)break;
+      out+=`<div class="cm"><h4>${BM_MON[mm]} ${yy}</h4>${monthGrid(k,price,yy,mm,st)}</div>`}return out}
+  function draw(keep){const sc=cal.querySelector('.cbody'),top=sc?sc.scrollTop:0,n=st.ci&&st.co?dDiff(st.ci,st.co):0;
+    cal.innerHTML=`<div class="chead"><button type="button" class="x" data-x aria-label="Tutup">×</button><div><b>${st.ci?(st.co?`${dFmt(st.ci)} → ${dFmt(st.co)}`:`${dFmt(st.ci)} → pilih daftar keluar`):'Pilih tarikh daftar masuk'}</b><small>${n?`${n} malam · ${rm(price*n)}`:(AVAIL_OK?'Nombor = bilik masih kosong':'Kekosongan tidak dapat disemak sekarang')}</small></div></div>
+     ${WKH}<div class="cbody">${months()}</div>
      <div class="cfoot"><button type="button" class="linkbtn" data-clr>Kosongkan</button><button type="button" class="wa-btn" data-ok${n?'':' disabled'}>Simpan${n?` · ${n} malam`:''}</button></div>`;
-    if(keep)cal.querySelector('.cbody').scrollTop=top;
-    else{const t=cal.querySelector('.cd.sel');if(t)t.scrollIntoView({block:'center'})}}
+    if(keep)cal.querySelector('.cbody').scrollTop=top;else{const t=cal.querySelector('.cd.sel');if(t)t.scrollIntoView({block:'center'})}}
   cal.onclick=e=>{if(e.target.closest('[data-x]')){close();return}
-    if(e.target.closest('[data-clr]')){ci=co='';draw(true);return}
-    if(e.target.closest('[data-ok]')){if(ci&&co){onDone({ci,co});close()}return}
-    const c=e.target.closest('.cd');if(!c||c.disabled)return;const d=c.dataset.d;
-    if(!ci||co||d<=ci){if(booked.has(d)){toast('Tarikh ini sudah penuh.');return}ci=d;co=''}
-    else co=d;
-    draw(true)};
+    if(e.target.closest('[data-clr]')){st.ci=st.co='';draw(true);return}
+    if(e.target.closest('[data-ok]')){if(st.ci&&st.co){onDone({ci:st.ci,co:st.co});close()}return}
+    const c=e.target.closest('.cd');if(!c||c.disabled)return;const err=calTap(k,st,c.dataset.d);if(err)toast(err);draw(true)};
   const key=e=>{if(e.key==='Escape'){e.stopImmediatePropagation();close()}};
   function close(){cal.remove();document.removeEventListener('keydown',key,true)}
   document.addEventListener('keydown',key,true);document.body.appendChild(cal);draw(false);cal.querySelector('[data-x]').focus()}
 
-function bindBooking(el,k,l,item,r,b){
-  const price=Number(r.price_min_rm)||0,sel={ci:'',co:''};let busy=false;
-  const q=s=>el.querySelector(s);
-  loadAvail().then(()=>{if(!AVAIL_OK)q('#best').textContent='Pilih tarikh untuk lihat anggaran harga.'});
-  const pick=async()=>{await loadAvail(true);openCalendar(k,price,sel,v=>{sel.ci=v.ci;sel.co=v.co;upd()})};
+// ---- booking: hold 2 hours, WhatsApp to reservations, pay QR, receipt to finance ----
+function roomCtx(k){const [loc,item]=k.split('|'),l=DB.Locations.find(x=>x.loc_id===loc)||{},r=DB.Prices.map(fix).find(p=>p.loc_id===loc&&p.item===item)||{},b=BIZ.find(x=>x.biz_id==='daleena')||{};
+  return {k,loc,item,l,r,b,price:Number(r.price_min_rm)||0}}
+function bookMsg(c,st,g,nm,hold){const n=dDiff(st.ci,st.co);
+  return `*D'ALEENA COLLECTION – TEMPAHAN BARU*\n(ditempah melalui kbkcitrawaja.my)${hold?`\nNo. rujukan: *${hold.ref}*`:''}\n\n`+
+  `Penginapan: ${c.l.name}\nBilik: ${c.item} (${rm(c.price)}/malam)\nDaftar masuk: ${dFmt(st.ci,{year:'numeric'})}\nDaftar keluar: ${dFmt(st.co,{year:'numeric'})} (${n} malam)\nTetamu: ${g||'-'} orang\nNama: ${nm||'-'}\n\n*Jumlah: ${rm(c.price*n)}*\n\n`+
+  (hold?`Mohon tahan tempahan ini untuk saya. Saya akan membuat bayaran dalam masa 2 jam (sebelum ${hold.expires}) melalui DuitNow QR dan menghantar resit kepada Kewangan (${FIN_WA}). Terima kasih.`
+       :`Mohon sahkan kekosongan bilik. Terima kasih.`)}
+async function placeHold(c,st,g,nm){try{const j=await avRpc('web_hold',{p_unit:c.k,p_in:st.ci,p_out:st.co,p_guests:+g||1,p_name:nm});
+  if(j&&j.ok)return {hold:j};if(j&&j.error)return {err:j.error};return {hold:null}}catch(e){return {hold:null}}}
+const holdErr=e=>({taken:'Maaf, tarikh ini baru sahaja ditempah. Sila pilih tarikh lain.',dates:'Tarikh tidak sah (maksimum 30 malam).',name:'Sila isi nama anda.',busy:'Sistem sibuk. Sila cuba sebentar lagi.',unit:'Bilik tidak dijumpai.'}[e]||'Ralat. Sila cuba lagi.');
+function doneHTML(c,st,g,nm,hold){const n=dDiff(st.ci,st.co),tot=rm(c.price*n),link=wa(c.b.whatsapp)+'?text='+encodeURIComponent(bookMsg(c,st,g,nm,hold));
+  const rc=`*RESIT BAYARAN – D'ALEENA COLLECTION*\nNo. rujukan: ${hold?hold.ref:'-'}\nNama: ${nm}\nBilik: ${c.item}, ${c.l.name}\nTarikh: ${dFmt(st.ci,{year:'numeric'})} → ${dFmt(st.co,{year:'numeric'})} (${n} malam)\nJumlah dibayar: ${tot}\n\n(Sila lampirkan gambar resit bayaran)`;
+  const fin=wa(FIN_WA)+'?text='+encodeURIComponent(rc);
+  if(!hold)return `<div class="bdone"><div class="bhead"><div><b>Hampir siap</b><p>${esc(c.item)} · ${dFmt(st.ci)} → ${dFmt(st.co)} · ${n} malam · <b>${tot}</b></p><p>Hantar tempahan di WhatsApp dan admin kami akan mengesahkan kekosongan serta cara bayaran.</p></div></div>
+    <a class="wa-btn bbig" href="${link}" target="_blank" rel="noopener">${WA_ICON} Hantar tempahan di WhatsApp</a></div>`;
+  return `<div class="bdone"><div class="bhead"><div class="ok">✓</div><div><b>Bilik ditahan untuk anda sehingga ${esc(hold.expires)}</b><p>No. rujukan <b>${esc(hold.ref)}</b> · ${esc(c.item)} · ${dFmt(st.ci)} → ${dFmt(st.co)} · ${n} malam · <b>${tot}</b></p></div></div>
+   <ol class="bsteps">
+    <li><span class="sn">1</span><div><strong>Hantar tempahan di WhatsApp</strong><p>Kepada pasukan tempahan D'Aleena (${esc(c.b.whatsapp||'')}).</p><a class="wa-btn" href="${link}" target="_blank" rel="noopener">${WA_ICON} Hantar tempahan</a></div></li>
+    <li><span class="sn">2</span><div><strong>Bayar ${tot} dengan DuitNow QR dalam 2 jam</strong><p>Penerima: <b>KBK Citra Waja</b>. Tangkap layar QR ini dan imbas dari aplikasi bank anda.</p><img class="payqr" src="${APPIMG['pay-qr']}" alt="DuitNow QR KBK Citra Waja"><a class="linkbtn" href="${STAY_PAY_URL}" target="_blank" rel="noopener">Buka halaman bayaran ↗</a></div></li>
+    <li><span class="sn">3</span><div><strong>Hantar resit kepada Kewangan</strong><p>WhatsApp ${FIN_WA}. Tempahan disahkan selepas resit diterima.</p><a class="wa-btn" href="${fin}" target="_blank" rel="noopener">${WA_ICON} Hantar resit</a></div></li>
+   </ol>
+   <p class="bnote">Tanpa bayaran dalam masa 2 jam, tahanan dilepaskan secara automatik. Ada soalan? WhatsApp ${esc(c.b.whatsapp||'')}.</p></div>`}
+
+// booking bar inside the room photo overlay (full website)
+function bindBooking(el,k){const c=roomCtx(k),sel={ci:'',co:''};let busy=false;const q=s=>el.querySelector(s);
+  loadAvail();
+  const pick=async()=>{await loadAvail(true);openCalendar(k,c.price,sel,v=>{sel.ci=v.ci;sel.co=v.co;upd()})};
   q('#dbtn').onclick=pick;q('#dbtn2').onclick=pick;
   const upd=()=>{const n=sel.ci&&sel.co?dDiff(sel.ci,sel.co):0;
     q('#dci').textContent=sel.ci?dFmt(sel.ci):'Pilih tarikh';q('#dco').textContent=sel.co?dFmt(sel.co):'–';
-    q('#best').innerHTML=n?`${n} malam × ${rm(price)} = <b>${rm(price*n)}</b>`:'Pilih tarikh untuk lihat anggaran harga.'};
-  q('#bform').addEventListener('input',upd);upd();
-  const msgFor=(n,hold)=>{const g=q('#bg').value,nm=q('#bn').value.trim();
-    return `*D'ALEENA COLLECTION – TEMPAHAN BARU*\n(ditempah melalui kbkcitrawaja.my)${hold?`\nNo. rujukan: *${hold.ref}*`:''}\n\n`+
-    `Penginapan: ${l.name}\nBilik: ${item} (${rm(price)}/malam)\nDaftar masuk: ${dFmt(sel.ci,{year:'numeric'})}\nDaftar keluar: ${dFmt(sel.co,{year:'numeric'})} (${n} malam)\nTetamu: ${g||'-'} orang\nNama: ${nm||'-'}\n\n*Jumlah: ${rm(price*n)}*\n\n`+
-    (hold?`Mohon tahan tempahan ini untuk saya. Saya akan membuat bayaran dalam masa 2 jam (sebelum ${hold.expires}) dan hantar resit di sini. Mohon kongsikan maklumat bayaran. Terima kasih.`
-         :`Mohon sahkan kekosongan bilik. Terima kasih.`)};
+    q('#best').innerHTML=n?`${n} malam × ${rm(c.price)} = <b>${rm(c.price*n)}</b>`:'Pilih tarikh untuk lihat anggaran harga.'};
+  upd();
   q('#bgo').onclick=async()=>{if(busy)return;const tt=document.getElementById('toast');if(tt)tt.hidden=true;
     if(!sel.ci||!sel.co){pick();return}
-    const nm=q('#bn').value.trim();if(nm.length<2){q('#bn').focus();toast('Sila isi nama anda.');return}
-    const n=dDiff(sel.ci,sel.co);busy=true;const btn=q('#bgo');btn.textContent='Menyemak…';
-    let hold=null;
-    try{const j=await avRpc('web_hold',{p_unit:k,p_in:sel.ci,p_out:sel.co,p_guests:+q('#bg').value||1,p_name:nm});
-      if(j&&j.ok)hold=j;
-      else if(j&&j.error==='taken'){await loadAvail(true);toast('Maaf, tarikh ini baru sahaja ditempah. Sila pilih tarikh lain.');sel.ci=sel.co='';upd();busy=false;btn.textContent='Tempah sekarang';return}
-      else if(j&&j.error==='dates'){toast('Tarikh tidak sah (maksimum 30 malam).');busy=false;btn.textContent='Tempah sekarang';return}}
-    catch(e){/* availability service not reachable: fall back to asking admin */}
-    busy=false;btn.textContent='Tempah sekarang';
-    const link=wa(b.whatsapp)+'?text='+encodeURIComponent(msgFor(n,hold));
-    q('#bookbar').innerHTML=`<div class="bdone">${hold?`<div><div class="ok">✓</div><div><b>Bilik ditahan untuk anda sehingga ${esc(hold.expires)}</b><p>No. rujukan <b>${esc(hold.ref)}</b> · ${dFmt(sel.ci)} → ${dFmt(sel.co)} · ${n} malam · <b>${rm(price*n)}</b></p><p>Langkah terakhir: hantar tempahan di WhatsApp, kemudian buat bayaran dalam masa 2 jam. Tanpa bayaran, tahanan akan dilepaskan secara automatik.</p></div></div>`
-      :`<div><b>Hampir siap</b><p>${dFmt(sel.ci)} → ${dFmt(sel.co)} · ${n} malam · <b>${rm(price*n)}</b></p><p>Hantar tempahan di WhatsApp dan admin kami akan mengesahkan kekosongan.</p></div>`}
-      <a class="wa-btn" href="${link}" target="_blank" rel="noopener">${WA_ICON} Hantar tempahan di WhatsApp</a></div>`;
-    try{window.open(link,'_blank','noopener')}catch(e){}};
+    const nm=q('#bn').value.trim(),g=q('#bg').value;if(nm.length<2){q('#bn').focus();toast('Sila isi nama anda.');return}
+    busy=true;const btn=q('#bgo');btn.textContent='Menyemak…';const res=await placeHold(c,sel,g,nm);busy=false;btn.textContent='Tempah sekarang';
+    if(res.err){toast(holdErr(res.err));if(res.err==='taken'){await loadAvail(true);sel.ci=sel.co='';upd()}return}
+    q('#bookbar').innerHTML=doneHTML(c,sel,g,nm,res.hold);q('#bookbar').scrollIntoView({block:'start'})};
 }
 
-function openRoom(k){
+// ---- /stay : standalone booking page ----
+const STAY_GROUPS=[['inn',"D'Aleena Inn Kodiang"],['kodiang','Guesthouse Kodiang'],['prima','Homestay Sungai Petani'],['mutiara','Homestay Sungai Petani']];
+function stayRooms(){return DB.Prices.map(fix).filter(p=>p.biz_id==='daleena'&&p.show_on_site!=='N').sort((a,b)=>a.sort-b.sort).map(p=>p.loc_id+'|'+p.item).filter(k=>DB.RoomPhotos[k]!==undefined||photosFor(k).length)}
+function stayPage(){const b=BIZ.find(x=>x.biz_id==='daleena'),rooms=stayRooms();
+  const locs=[...new Set(rooms.map(k=>k.split('|')[0]))];
+  const roomRow=k=>{const c=roomCtx(k),ph=photosFor(k)[0];return `<div class="sr" data-k="${esc(k)}"><button type="button" class="sr-ph" data-view="${esc(k)}" aria-label="Lihat gambar ${esc(c.item)}">${ph?`<img src="${ph.src}" alt="" loading="lazy">`:''}<span>${photosFor(k).length} gambar</span></button>
+    <label class="sr-main"><input type="radio" name="sroom" value="${esc(k)}"><span class="sr-t"><b>${esc(c.item)}</b><small>${esc(BM_NOTE[k]||c.r.detail||'')}</small></span><span class="sr-p"><b>${rm(c.price)}</b><small>/malam</small></span></label></div>`};
+  return `<div class="stay-bar"><img src="${LOGO.daleena}" alt=""><div><b>D'Aleena Collection</b><small>Tempahan penginapan</small></div><a class="x" href="#daleena" aria-label="Tutup dan lihat laman D'Aleena Collection">×</a></div>
+<section class="order-hero stay-hero"><div><div class="eyebrow">Tempahan online</div><h1 style="margin-top:8px">Tempah penginapan D'Aleena</h1>
+ <p class="lead" style="margin-top:12px">Pilih bilik, lihat tarikh kosong secara terus dan tahan bilik anda selama 2 jam untuk bayaran.</p>
+ <ol class="order-steps"><li><b>1</b>Pilih bilik</li><li><b>2</b>Pilih tarikh kosong</li><li><b>3</b>Hantar ke WhatsApp &amp; bayar DuitNow QR</li></ol></div></section>
+<section class="order-wrap"><div class="cart-box inline stay-box" data-stay>
+ <div class="cart-top">
+  <div class="cart-sum"><div><h3 style="margin:0 0 6px">Tempahan anda</h3><div class="cart-chips" data-chips><em>Pilih bilik dan tarikh di bawah</em></div></div><div class="cart-tot"><small>Jumlah</small><b data-tot>RM0</b></div></div>
+  <div class="cart-act"><span class="cart-err" data-err></span><button class="wa-btn" data-go type="button">${WA_ICON}<span>Tempah &amp; tahan 2 jam</span></button></div>
+ </div>
+ <div class="cart-list">
+  <div class="sstep"><h4><span class="sn">1</span>Pilih bilik</h4>
+   ${locs.map(loc=>{const L=DB.Locations.find(x=>x.loc_id===loc)||{};return `<div class="sgrp"><div class="sgrp-h">${esc(L.name||loc)}${L.google_maps_url?` · <a href="${esc(L.google_maps_url)}" target="_blank" rel="noopener">Peta ↗</a>`:''}</div>${rooms.filter(k=>k.startsWith(loc+'|')).map(roomRow).join('')}</div>`}).join('')}</div>
+  <div class="sstep" id="sdates"><h4><span class="sn">2</span>Pilih tarikh</h4><div data-cal><p class="cart-note" style="margin:6px 0 0">Pilih bilik dahulu untuk melihat tarikh kosong.</p></div></div>
+  <div class="sstep" id="sinfo"><h4><span class="sn">3</span>Butiran anda</h4><div class="cart-form stay-form"><label>Nama<input data-f="name" autocomplete="name" placeholder="Nama penuh"></label><label>Tetamu<input data-f="g" type="number" min="1" value="2" inputmode="numeric"></label></div>
+   <button class="wa-btn bbig sgo" data-go type="button">${WA_ICON}<span>Tempah &amp; tahan 2 jam</span></button>
+   <p class="cart-note">Bilik akan ditahan selama 2 jam. Bayar dengan DuitNow QR dan hantar resit kepada Kewangan untuk sahkan tempahan.</p></div>
+ </div></div></section>
+<p class="order-foot">Satu lagi perniagaan <a href="#home">KBK Citra Waja</a> · Lihat semua gambar di <a href="#daleena">D'Aleena Collection</a></p>`}
+function bindStay(box){const S={k:'',ci:'',co:'',mo:0};const q=s=>box.querySelector(s);let busy=false;
+  const goTo=el=>{const bar=document.querySelector('.stay-bar'),off=(bar?bar.offsetHeight:0)+q('.cart-top').offsetHeight+8;window.scrollTo({top:el.getBoundingClientRect().top+scrollY-off,behavior:'smooth'})};
+  const today=MYT(),y0=+today.slice(0,4),m0=+today.slice(5,7)-1,maxMo=Math.floor((dDiff(today,dAdd(today,CAL_DAYS)))/31)+1;
+  function sum(){const n=S.ci&&S.co?dDiff(S.ci,S.co):0,c=S.k?roomCtx(S.k):null;
+    q('[data-chips]').innerHTML=c?`<span>${esc(c.item)}${S.ci?` · ${dFmt(S.ci,{weekday:undefined})} → ${S.co?dFmt(S.co,{weekday:undefined}):'?'}`:''}${n?` · ${n} malam`:''}</span>`:'<em>Pilih bilik dan tarikh di bawah</em>';
+    q('[data-tot]').textContent=c&&n?rm(c.price*n):'RM0'}
+  function cal(){const box2=q('[data-cal]');if(!S.k){return}
+    const c=roomCtx(S.k),mm=(m0+S.mo)%12,yy=y0+Math.floor((m0+S.mo)/12);
+    box2.innerHTML=`<div class="scal-h"><button type="button" class="scal-nav" data-mv="-1"${S.mo<=0?' disabled':''} aria-label="Bulan sebelum">‹</button><b>${BM_MON[mm]} ${yy}</b><button type="button" class="scal-nav" data-mv="1"${S.mo>=maxMo?' disabled':''} aria-label="Bulan seterusnya">›</button></div>
+     <p class="scal-tip">${S.ci&&!S.co?'Sekarang pilih tarikh <b>daftar keluar</b>.':S.ci&&S.co?`${esc(c.item)} · ${dFmt(S.ci)} → ${dFmt(S.co)} · <b>${dDiff(S.ci,S.co)} malam</b> <button type="button" class="linkbtn" data-clr>Tukar tarikh</button>`:'Pilih tarikh <b>daftar masuk</b>.'}</p>
+     ${WKH}${monthGrid(S.k,c.price,yy,mm,S)}${calLegend()}`}
+  box.addEventListener('change',e=>{const r=e.target.closest('input[name=sroom]');if(!r)return;S.k=r.value;
+    box.querySelectorAll('.sr').forEach(x=>x.classList.toggle('on',x.dataset.k===S.k));
+    if(S.ci&&S.co){let ok=true;for(let x=S.ci;x<S.co;x=dAdd(x,1))if(leftOn(S.k,x)<=0)ok=false;if(!ok){S.ci=S.co='';toast('Tarikh dipilih tidak kosong untuk bilik ini. Sila pilih semula.')}}
+    else if(S.ci&&leftOn(S.k,S.ci)<=0)S.ci='';
+    sum();cal();q('[data-err]').textContent='';
+    loadAvail().then(()=>{cal()});goTo(document.getElementById('sdates'))});
+  box.addEventListener('click',e=>{const v=e.target.closest('[data-view]');if(v){e.preventDefault();OV=v;openRoom(v.dataset.view,true);return}
+    const mv=e.target.closest('[data-mv]');if(mv){S.mo=Math.max(0,Math.min(maxMo,S.mo+ +mv.dataset.mv));cal();return}
+    if(e.target.closest('[data-clr]')){S.ci=S.co='';sum();cal();return}
+    const d=e.target.closest('.cd');if(d&&!d.disabled&&S.k){const err=calTap(S.k,S,d.dataset.d);if(err)toast(err);sum();cal();q('[data-err]').textContent='';
+      if(S.ci&&S.co)setTimeout(()=>goTo(document.getElementById('sinfo')),150);return}
+    if(e.target.closest('[data-go]'))go()});
+  box.addEventListener('input',()=>{q('[data-err]').textContent=''});
+  async function go(){if(busy)return;const err=t=>{q('[data-err]').textContent=t};
+    if(!S.k){err('Sila pilih bilik.');goTo(q('.sstep'));return}if(!S.ci||!S.co){err('Sila pilih tarikh daftar masuk & keluar.');goTo(document.getElementById('sdates'));return}
+    const nm=q('[data-f=name]').value.trim(),g=q('[data-f=g]').value;if(nm.length<2){err('Sila isi nama anda.');goTo(document.getElementById('sinfo'));setTimeout(()=>q('[data-f=name]')?.focus({preventScroll:true}),400);return}
+    busy=true;const btns=box.querySelectorAll('[data-go] span');btns.forEach(x=>x.textContent='Menyemak…');const c=roomCtx(S.k),res=await placeHold(c,S,g,nm);busy=false;btns.forEach(x=>x.textContent='Tempah & tahan 2 jam');
+    if(res.err){err(holdErr(res.err));if(res.err==='taken'){await loadAvail(true);S.ci=S.co='';sum();cal()}return}
+    box.innerHTML=`<div class="cart-done stay-done">${doneHTML(c,{ci:S.ci,co:S.co},g,nm,res.hold)}<button type="button" class="linkbtn" data-again style="justify-self:center">Buat tempahan lain</button></div>`;
+    box.querySelector('[data-again]').onclick=()=>render();
+    window.scrollTo({top:box.getBoundingClientRect().top+scrollY-70,behavior:'smooth'})}
+  loadAvail()}
+
+function openRoom(k,viewOnly){
   const [loc,item]=k.split('|'),l=DB.Locations.find(x=>x.loc_id===loc),r=DB.Prices.map(fix).find(p=>p.loc_id===loc&&p.item===item),b=BIZ.find(x=>x.biz_id==='daleena');
   const note=DB.RoomNotes[k]||r.detail||'';CUR={k,i:0,edit:false};
   const el=document.getElementById('ov');
@@ -791,7 +905,7 @@ function openRoom(k){
   if(CAN_EDIT){el.querySelector('#edbtn').onclick=()=>{CUR.edit=!CUR.edit;drawGallery()};
     el.querySelector('#edfile').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)addFiles(f)};
     el.querySelector('#edrm').onclick=()=>{saveRoom(k,{removed:[]});toast('Hidden photos restored')}}
-  bindBooking(el,k,l,item,r,b);
+  if(viewOnly){el.querySelector('#bookbar').remove()}else bindBooking(el,k);
   const close=()=>{CUR=null;el.hidden=true;el.innerHTML='';document.body.style.overflow='';document.removeEventListener('keydown',key);OV?.focus()};
   const key=e=>{if(e.key==='Escape')close();if(e.key==='ArrowRight'&&e.target.tagName!=='INPUT')show(CUR.i+1);if(e.key==='ArrowLeft'&&e.target.tagName!=='INPUT')show(CUR.i-1)};
   el.querySelector('#ovx').onclick=close;el.onclick=e=>{if(e.target===el)close()};document.addEventListener('keydown',key);
@@ -837,7 +951,7 @@ ${reviewsSection(id)}
 document.getElementById('hdrlogo').src=LOGO.kbk;
 document.getElementById('snap').textContent='Data snapshot: '+DB.snapshot;
 const app=document.getElementById('app');let pending=null;
-function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}if(id==='stay')id='daleena';CURID=id;PRETTY(rawId);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital'||id==='order';const isOrder=id==='order';app.innerHTML=isOrder?orderPage('matsatay'):id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();if(isOrder){const bx=document.querySelector('.cart-box.inline');if(bx)bindCart(bx)}document.title=(isOrder?'Tempah Mat Satay Kodiang · ':id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
+function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}CURID=id;PRETTY(rawId);const isStay=id==='stay';document.body.classList.toggle('focus',isStay);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital'||id==='order'||isStay;const isOrder=id==='order';app.innerHTML=isStay?stayPage():isOrder?orderPage('matsatay'):id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();if(isOrder){const bx=document.querySelector('.cart-box.inline');if(bx)bindCart(bx)}if(isStay){const bx=document.querySelector('[data-stay]');if(bx)bindStay(bx)}document.title=(isStay?"Tempah D'Aleena Collection · ":isOrder?'Tempah Mat Satay Kodiang · ':id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
  if(deepRoom){const r=document.querySelector(`[data-room="${deepRoom}"]`);if(r){r.scrollIntoView({block:'center'});OV=r;openRoom(deepRoom)}return}
  if(pending&&!b&&!isStory){const el=document.getElementById(pending);pending=null;if(el){el.scrollIntoView();return}}window.scrollTo(0,0)}
 document.addEventListener('click',e=>{const c=e.target.closest('[data-cart]');if(c){openCart(c.dataset.cart);return}});
