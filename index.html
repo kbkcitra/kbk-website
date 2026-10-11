@@ -262,6 +262,12 @@ footer{border-top:1px solid var(--line);padding-block:36px;color:var(--ink-2);fo
 .cart-done{padding:18px;overflow:auto;display:grid;gap:12px}.cart-done p{margin:0;color:var(--ink-2)}.cart-done b{color:var(--ink)}.payqr{width:min(280px,80%);justify-self:center;border-radius:12px;background:#fff;padding:8px}
 .cartbtn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#06231B;border:0;border-radius:999px;padding:10px 18px;font-weight:700;font-size:15px;cursor:pointer}.cartbtn:hover{filter:brightness(1.08)}
 .menu-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cart-box.inline{max-height:none;width:100%;overflow:visible;border-radius:var(--r)}.cart-box.inline .cart-top{position:sticky;top:58px;z-index:5}.cart-box.inline .cart-list{overflow:visible}
+.cart-notefield{grid-column:1/-1}
+.order-hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(18px,4vw,36px);align-items:center;padding-top:clamp(20px,4vw,36px)}.order-logo{width:clamp(84px,14vw,140px);height:auto;border-radius:20px}
+@media (max-width:560px){.order-hero{grid-template-columns:1fr}}
+.order-steps{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-wrap:wrap;gap:8px}.order-steps li{border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 6px;font-size:13.5px;display:flex;align-items:center;gap:8px}.order-steps b{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#06231B;display:grid;place-items:center;font-size:12px}
+.order-addr{color:var(--ink-2);font-size:14px;margin-top:14px}.order-addr a{color:var(--accent)}.order-wrap{padding-top:18px}.order-foot{color:var(--ink-2);font-size:14px;text-align:center;margin:10px 0 40px}.order-foot a{color:var(--accent)}
 .ourstory{display:block!important;max-width:780px;margin-top:32px}
 .ceo{position:static!important;display:grid;grid-template-columns:120px minmax(0,1fr);align-items:center;margin-bottom:34px}
 .ceo .portrait{width:120px;aspect-ratio:4/5;border-radius:0}
@@ -441,54 +447,64 @@ const APPS=[
    ['Profit trend & recalculate cost','Profit, sales and cost by day or month, with each day tappable for details. If a purchase was keyed wrongly, one “Recalculate cost” button corrects past sales after a preview. Staff PINs, permissions and a master activity log keep everything accountable.',SHOT('maiorder-business','MaiOrder business trend')],
   ]},
 ];
-// ===== Mat Satay online order (cart → WhatsApp) =====
+// ===== Online order engine (reusable per business: add an entry to CARTS) =====
 const PAY_URL='https://kbkcitrawaja.my/pay';
-let CART={},CART_ITEMS=null;
-function cartItems(){if(CART_ITEMS)return CART_ITEMS;const out=[];
- DB.Menu_matsatay.forEach(g=>g.rows.forEach(r=>{
-  const each=/Per stick|Per piece/i.test(g.note||'')&&!/Set|\(10/.test(r.item);
-  if(r.price2!=null){if(r.price!=null)out.push({k:g.category+'|'+r.item+'|Panas',cat:g.category,name:r.item+' (Panas)',price:+r.price,def:1});out.push({k:g.category+'|'+r.item+'|Ais',cat:g.category,name:r.item+' (Ais)',price:+r.price2,def:1})}
-  else if(r.price!=null)out.push({k:g.category+'|'+r.item,cat:g.category,name:r.item,price:+r.price,def:each||/^Satay (Ayam|Daging|Kambing)$/.test(r.item)?10:1})}));
- return CART_ITEMS=out}
 const rm2=n=>'RM'+(Math.round(n*100)/100).toFixed(2);
-function cartTotal(){return Object.values(CART).reduce((s,c)=>s+c.price*c.qty,0)}
-function openCart(){let el=document.getElementById('cart');if(!el){el=document.createElement('div');el.id='cart';el.className='cart-ov';document.body.appendChild(el)}
- const items=cartItems(),cats=[...new Set(items.map(i=>i.cat))];
- const today=new Date();const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
- el.innerHTML=`<div class="cart-box" role="dialog" aria-modal="true" aria-label="Order from Mat Satay Kodiang">
+const CARTS={
+ matsatay:{name:'Mat Satay Kodiang',title:'MAT SATAY KODIANG',pay:{url:PAY_URL,qr:()=>APPIMG['pay-qr'],payee:'KBK Citra Waja'},
+  phone:()=>((BIZ.find(x=>x.biz_id==='matsatay')||{}).whatsapp||''),
+  items:()=>{const out=[];DB.Menu_matsatay.forEach(g=>g.rows.forEach(r=>{
+   const each=/Per stick|Per piece/i.test(g.note||'')&&!/Set|\(10/.test(r.item);
+   if(r.price2!=null){if(r.price!=null)out.push({k:g.category+'|'+r.item+'|Panas',cat:g.category,name:r.item+' (Panas)',price:+r.price,def:1});out.push({k:g.category+'|'+r.item+'|Ais',cat:g.category,name:r.item+' (Ais)',price:+r.price2,def:1})}
+   else if(r.price!=null)out.push({k:g.category+'|'+r.item,cat:g.category,name:r.item,price:+r.price,def:each||/^Satay (Ayam|Daging|Kambing)$/.test(r.item)?10:1})}));return out}},
+};
+const CART_STATE={};
+function cartHTML(id,inline){const C=CARTS[id],items=C.items(),cats=[...new Set(items.map(i=>i.cat))];
+ const now=new Date(),iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+ return `<div class="cart-box ${inline?'inline':''}" data-cartid="${id}" role="${inline?'region':'dialog'}" aria-label="Pesanan ${esc(C.name)}">
   <div class="cart-top">
-   <div class="cart-h"><div><div class="eyebrow">Mat Satay Kodiang</div><h3>Your order</h3></div><button class="x" id="cartx" aria-label="Close">×</button></div>
-   <div class="cart-sum"><div class="cart-chips" id="cchips"></div><div class="cart-tot"><small>Total</small><b id="ctot">RM0.00</b></div></div>
-   <div class="cart-form"><label>Name<input id="cname" autocomplete="name" placeholder="Your name"></label><label>Pickup date<input type="date" id="cdate" min="${iso(today)}" value="${iso(today)}"></label><label>Pickup time<input type="time" id="ctime" step="900"></label></div>
-   <div class="cart-act"><span class="cart-err" id="cerr"></span><button class="wa-btn" id="csubmit" type="button">${WA_ICON}<span>Submit order on WhatsApp</span></button></div>
+   <div class="cart-h"><div><div class="eyebrow">${esc(C.name)}</div><h3>Pesanan anda</h3></div>${inline?'':'<button class="x" data-cx aria-label="Tutup">×</button>'}</div>
+   <div class="cart-sum"><div class="cart-chips" data-chips></div><div class="cart-tot"><small>Jumlah</small><b data-tot>RM0.00</b></div></div>
+   <div class="cart-form"><label>Nama<input data-f="name" autocomplete="name" placeholder="Nama anda"></label><label>Tarikh ambil<input type="date" data-f="date" min="${iso(now)}" value="${iso(now)}"></label><label>Masa ambil<input type="time" data-f="time" step="900"></label>
+    <label class="cart-notefield">Catatan (pilihan)<input data-f="note" placeholder="Contoh: kurang pedas, bungkus asing"></label></div>
+   <div class="cart-act"><span class="cart-err" data-err></span><button class="wa-btn" data-submit type="button">${WA_ICON}<span>Hantar pesanan ke WhatsApp</span></button></div>
   </div>
-  <div class="cart-list">${cats.map(c=>`<div class="cart-cat"><h4>${esc(c)}</h4>${items.filter(i=>i.cat===c).map(i=>`<div class="ci" data-k="${esc(i.k)}"><label class="ci-l"><input type="checkbox" class="ci-c"><span>${esc(i.name)}</span></label><span class="ci-p">${rm2(i.price)}</span><div class="qty"><button type="button" class="qm" aria-label="Less">−</button><input class="qv" type="number" min="0" inputmode="numeric" value="0" aria-label="Quantity"><button type="button" class="qp" aria-label="More">+</button></div></div>`).join('')}</div>`).join('')}
-   <p class="cart-note">Prices follow our live menu. Final total is confirmed by our staff on WhatsApp.</p></div>
- </div>`;
- el.hidden=false;document.body.style.overflow='hidden';
- const byK=Object.fromEntries(items.map(i=>[i.k,i]));
- const sync=()=>{el.querySelectorAll('.ci').forEach(row=>{const c=CART[row.dataset.k];row.querySelector('.ci-c').checked=!!c;row.querySelector('.qv').value=c?c.qty:0;row.classList.toggle('on',!!c)});
-  const L=Object.values(CART);el.querySelector('#cchips').innerHTML=L.length?L.map(c=>`<span>${esc(c.name)} ×${c.qty}</span>`).join(''):'<em>Tick the menu below to add items.</em>';el.querySelector('#ctot').textContent=rm2(cartTotal())};
- const setQ=(k,q)=>{q=Math.max(0,Math.min(999,Math.round(+q||0)));if(q===0)delete CART[k];else CART[k]={name:byK[k].name,price:byK[k].price,qty:q};sync()};
- el.querySelector('.cart-list').addEventListener('click',e=>{const row=e.target.closest('.ci');if(!row)return;const k=row.dataset.k,cur=CART[k]?.qty||0;
-  if(e.target.closest('.qp'))setQ(k,cur?cur+1:byK[k].def);else if(e.target.closest('.qm'))setQ(k,cur-1)});
- el.querySelector('.cart-list').addEventListener('change',e=>{const row=e.target.closest('.ci');if(!row)return;const k=row.dataset.k;
-  if(e.target.classList.contains('ci-c'))setQ(k,e.target.checked?byK[k].def:0);else if(e.target.classList.contains('qv'))setQ(k,e.target.value)});
- const close=()=>{el.hidden=true;document.body.style.overflow=''};
- el.querySelector('#cartx').onclick=close;el.querySelector('.cart-top').addEventListener('input',()=>{el.querySelector('#cerr').textContent=''});el.onclick=e=>{if(e.target===el)close()};
- el.querySelector('#csubmit').onclick=()=>{const L=Object.values(CART),n=el.querySelector('#cname').value.trim(),d=el.querySelector('#cdate').value,t=el.querySelector('#ctime').value,er=el.querySelector('#cerr');
-  er.textContent=!L.length?'Please tick at least one item.':!n?'Please enter your name.':!d||!t?'Please choose a pickup date and time.':'';if(er.textContent)return;
-  const dt=new Date(d+'T'+t),dl=dt.toLocaleDateString('en-MY',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),tl=dt.toLocaleTimeString('en-MY',{hour:'numeric',minute:'2-digit'});
-  const b=BIZ.find(x=>x.biz_id==='matsatay');const phone=(b&&b.whatsapp)||'';
-  const msg=`*MAT SATAY KODIANG – NEW ORDER*\n(ordered from kbkcitrawaja.my)\n\nName: ${n}\nPickup: ${dl}, ${tl}\n\n*Order*\n${L.map((c,i)=>`${i+1}. ${c.name} × ${c.qty} = ${rm2(c.price*c.qty)}`).join('\n')}\n\n*TOTAL: ${rm2(cartTotal())}*\n\nPlease pay to confirm your order (DuitNow QR – KBK Citra Waja):\n${PAY_URL}\nThen send your payment receipt in this chat.\n\nCan't pay online? Call us at ${phone} to confirm, and pay at the counter when you collect.`;
-  window.open(wa(phone)+'?text='+encodeURIComponent(msg),'_blank','noopener');
-  el.querySelector('.cart-box').innerHTML=`<div class="cart-done"><div class="cart-h"><div><div class="eyebrow">Almost done</div><h3>Pay to confirm your order</h3></div><button class="x" id="cartx2" aria-label="Close">×</button></div>
-   <p>Your order is ready in WhatsApp. Press <b>Send</b> there, then pay <b>${rm2(cartTotal())}</b> with this DuitNow QR and send us the receipt.</p>
-   <img class="payqr" src="${APPIMG['pay-qr']}" alt="DuitNow QR for KBK Citra Waja">
-   <p class="cart-note">Tip: take a screenshot of this QR and scan it from your banking app. Can't pay online? Call ${esc(phone)} and pay at the counter.</p>
-   <div class="cart-act"><a class="ghost-btn" href="${wa(phone)}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">WhatsApp didn't open? Tap here</a><button class="wa-btn" id="cartnew" type="button">Done</button></div></div>`;
-  const fin=()=>{CART={};close()};el.querySelector('#cartx2').onclick=fin;el.querySelector('#cartnew').onclick=fin};
+  <div class="cart-list">${cats.map(c=>`<div class="cart-cat"><h4>${esc(c)}</h4>${items.filter(i=>i.cat===c).map(i=>`<div class="ci" data-k="${esc(i.k)}"><label class="ci-l"><input type="checkbox" class="ci-c"><span>${esc(i.name)}</span></label><span class="ci-p">${rm2(i.price)}</span><div class="qty"><button type="button" class="qm" aria-label="Kurang">−</button><input class="qv" type="number" min="0" inputmode="numeric" value="0" aria-label="Kuantiti"><button type="button" class="qp" aria-label="Tambah">+</button></div></div>`).join('')}</div>`).join('')}
+   <p class="cart-note">Harga mengikut menu terkini. Jumlah akhir akan disahkan oleh staf kami di WhatsApp.</p></div></div>`}
+function bindCart(box,onClose){const id=box.dataset.cartid,C=CARTS[id],items=C.items(),byK=Object.fromEntries(items.map(i=>[i.k,i]));const CART=CART_STATE[id]=CART_STATE[id]||{};
+ const total=()=>Object.values(CART).reduce((s,c)=>s+c.price*c.qty,0);const q=s=>box.querySelector(s);
+ const sync=()=>{box.querySelectorAll('.ci').forEach(row=>{const c=CART[row.dataset.k];row.querySelector('.ci-c').checked=!!c;row.querySelector('.qv').value=c?c.qty:0;row.classList.toggle('on',!!c)});
+  const L=Object.values(CART);q('[data-chips]').innerHTML=L.length?L.map(c=>`<span>${esc(c.name)} ×${c.qty}</span>`).join(''):'<em>Tandakan menu di bawah untuk mula memesan.</em>';q('[data-tot]').textContent=rm2(total())};
+ const setQ=(k,v)=>{v=Math.max(0,Math.min(999,Math.round(+v||0)));if(!v)delete CART[k];else CART[k]={name:byK[k].name,price:byK[k].price,qty:v};sync()};
+ const list=q('.cart-list');
+ list.addEventListener('click',e=>{const row=e.target.closest('.ci');if(!row)return;const k=row.dataset.k,cur=CART[k]?.qty||0;if(e.target.closest('.qp'))setQ(k,cur?cur+1:byK[k].def);else if(e.target.closest('.qm'))setQ(k,cur-1)});
+ list.addEventListener('change',e=>{const row=e.target.closest('.ci');if(!row)return;const k=row.dataset.k;if(e.target.classList.contains('ci-c'))setQ(k,e.target.checked?byK[k].def:0);else if(e.target.classList.contains('qv'))setQ(k,e.target.value)});
+ q('.cart-top').addEventListener('input',()=>{q('[data-err]').textContent=''});
+ const cx=q('[data-cx]');if(cx)cx.onclick=onClose;
+ q('[data-submit]').onclick=()=>{const L=Object.values(CART),f=n=>q(`[data-f="${n}"]`).value.trim(),n=f('name'),d=f('date'),t=f('time'),note=f('note'),er=q('[data-err]');
+  er.textContent=!L.length?'Sila pilih sekurang-kurangnya satu menu.':!n?'Sila isi nama anda.':!d||!t?'Sila pilih tarikh dan masa ambil.':'';if(er.textContent)return;
+  const dt=new Date(d+'T'+t),dl=dt.toLocaleDateString('ms-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),tl=dt.toLocaleTimeString('ms-MY',{hour:'numeric',minute:'2-digit'});
+  const phone=C.phone(),T=total();
+  const msg=`*${C.title} – PESANAN BARU*\n(dipesan melalui kbkcitrawaja.my)\n\nNama: ${n}\nAmbil: ${dl}, ${tl}${note?`\nCatatan: ${note}`:''}\n\n*Pesanan*\n${L.map((c,i)=>`${i+1}. ${c.name} × ${c.qty} = ${rm2(c.price*c.qty)}`).join('\n')}\n\n*JUMLAH: ${rm2(T)}*\n\n`+(C.pay?`Sila bayar untuk mengesahkan pesanan (DuitNow QR – ${C.pay.payee}):\n${C.pay.url}\nKemudian hantar resit pembayaran dalam chat ini.\n\nTak dapat bayar online? Hubungi kami di ${phone} untuk sahkan pesanan, dan bayar di kaunter semasa ambil.`:`Sila sahkan pesanan saya. Terima kasih.`);
+  const link=wa(phone)+'?text='+encodeURIComponent(msg);window.open(link,'_blank','noopener');
+  box.innerHTML=`<div class="cart-done"><div class="cart-h"><div><div class="eyebrow">Hampir siap</div><h3>${C.pay?'Bayar untuk sahkan pesanan':'Pesanan dihantar'}</h3></div><button class="x" data-done aria-label="Tutup">×</button></div>
+   <p>Pesanan anda sudah sedia di WhatsApp. Tekan <b>Hantar (Send)</b> di sana${C.pay?`, kemudian bayar <b>${rm2(T)}</b> menggunakan DuitNow QR ini dan hantar resit kepada kami`:''}.</p>
+   ${C.pay?`<img class="payqr" src="${C.pay.qr()}" alt="DuitNow QR ${esc(C.pay.payee)}"><p class="cart-note">Tip: tangkap layar (screenshot) QR ini dan imbas dari aplikasi bank anda. Tak dapat bayar online? Hubungi ${esc(phone)} dan bayar di kaunter semasa ambil.</p>`:''}
+   <div class="cart-act"><a class="ghost-btn" href="${link}" target="_blank" rel="noopener">WhatsApp tak terbuka? Tekan sini</a><button class="wa-btn" data-done type="button">Selesai</button></div></div>`;
+  const fin=()=>{for(const k in CART)delete CART[k];if(onClose)onClose();else{box.outerHTML=cartHTML(id,true);bindCart(document.querySelector(`.cart-box[data-cartid="${id}"]`))}};
+  box.querySelectorAll('[data-done]').forEach(b=>b.onclick=fin)};
  sync()}
+function openCart(id){let el=document.getElementById('cart');if(!el){el=document.createElement('div');el.id='cart';el.className='cart-ov';document.body.appendChild(el)}
+ el.innerHTML=cartHTML(id,false);el.hidden=false;document.body.style.overflow='hidden';
+ const close=()=>{el.hidden=true;el.innerHTML='';document.body.style.overflow=''};el.onclick=e=>{if(e.target===el)close()};bindCart(el.querySelector('.cart-box'),close)}
+function orderPage(id){const C=CARTS[id],b=BIZ.find(x=>x.biz_id===id),L=by('Locations',id)[0]||{};
+ return `<a class="back" href="#${id}">← ${esc(C.name)}</a>
+<section class="order-hero"><img class="order-logo" src="${LOGO[id]}" alt="${esc(C.name)} logo"><div><div class="eyebrow">Tempahan online</div><h1 style="margin-top:8px">Tempah ${esc(C.name)}</h1>
+ <p class="lead" style="margin-top:12px">Pilih menu, tetapkan masa ambil dan hantar pesanan terus ke WhatsApp kami. Siap bila anda sampai.</p>
+ <ol class="order-steps"><li><b>1</b>Tandakan menu &amp; kuantiti</li><li><b>2</b>Isi nama, tarikh &amp; masa ambil</li><li><b>3</b>Hantar ke WhatsApp${C.pay?' &amp; bayar DuitNow QR':''}</li></ol>
+ ${L.address?`<p class="order-addr">📍 ${esc(L.address)}${L.google_maps_url?` · <a href="${esc(L.google_maps_url)}" target="_blank" rel="noopener">Google Maps ↗</a>`:''}</p>`:''}</div></section>
+<section class="order-wrap">${cartHTML(id,true)}</section>
+<p class="order-foot">Satu lagi perniagaan <a href="#home">KBK Citra Waja</a> · Lihat menu penuh di <a href="#${id}">${esc(C.name)}</a></p>`}
 
 function digitalPage(){const em='kbkcitrawaja91@gmail.com',wa='60197512017';
  const mail=app=>`mailto:${em}?subject=${encodeURIComponent('User manual request – '+app)}&body=${encodeURIComponent(`Hi KBK Citra Waja,\n\nI would like to request the user manual for ${app}.\n\nName:\nBusiness name:\nType of business:\nPhone / WhatsApp:\n\nThank you.`)}`;
@@ -696,11 +712,11 @@ return `<a class="back" href="#home" data-goto="businesses">← All businesses</
 <div class="ent-hero">${art(id)}<div class="in"><img class="ent-logo" src="${LOGO[id]}" alt="${esc(b.name)} logo"><div class="eyebrow" style="color:#9FE8CF">${esc(b.kind)}</div><h1>${esc(b.name)}</h1><p>${esc(b.tagline)}</p><a class="sharebtn hero-share" href="${shareWA(`${b.name} – ${b.tagline}\n${SITE_URL}${id}`)}" target="_blank" rel="noopener">${WA_ICON}<span>Share on WhatsApp</span></a></div></div>
 <section><div class="eyebrow">Why us</div><h2 style="margin-top:10px">What makes us different</h2>
 <div class="cols3">${H.map(h=>`<div class="feat"><h3>${esc(h.title)}</h3><p>${/your own words/i.test(h.text)?TBD('Your words'):esc(h.text)}</p></div>`).join('')}</div></section>
-${id==='daleena'?homesSection(b):`<section><div class="eyebrow">${id==='matsatay'?'Menu':'Services & prices'}</div>${id==='matsatay'?'<div class="menu-head"><h2 style="margin-top:10px">Our menu</h2><button type="button" class="cartbtn" data-cart>🛒 Order now · Add to cart</button></div>':'<h2 style="margin-top:10px">What we serve</h2>'}
+${id==='daleena'?homesSection(b):`<section><div class="eyebrow">${id==='matsatay'?'Menu':'Services & prices'}</div><div class="menu-head"><h2 style="margin-top:10px">${id==='matsatay'?'Our menu':'What we serve'}</h2>${CARTS[id]?`<button type="button" class="cartbtn" data-cart="${id}">🛒 Add to cart · Tempah</button>`:''}</div>
 <div class="price-groups">${priceGroups(id)}</div>
 <p class="src">Source: <b>${id==='matsatay'?'MaiOrder menu (Supabase · menu_items), live':'KBK Website Database · Prices tab'}</b></p></section>`}
 <section><div class="eyebrow">How it works</div><h2 style="margin-top:10px">How to use our service</h2>
-<ol class="steps">${S.map((s,i)=>`<li><h3>${esc(s.title)}</h3><p>${esc(s.text||'')}</p>${id==='matsatay'&&i===0?'<button type="button" class="cartbtn" data-cart style="margin-top:12px;font-size:14px;padding:8px 14px">🛒 Add to cart</button>':''}</li>`).join('')}</ol></section>
+<ol class="steps">${S.map((s,i)=>`<li><h3>${esc(s.title)}</h3><p>${esc(s.text||'')}</p>${CARTS[id]&&i===0?`<button type="button" class="cartbtn" data-cart="${id}" style="margin-top:12px;font-size:14px;padding:8px 14px">🛒 Add to cart</button>`:''}</li>`).join('')}</ol></section>
 ${id==='daleena'?'':`<section><div class="eyebrow">Where to find us</div><h2 style="margin-top:10px">${L.length>1?'Our locations':'Location'}</h2>
 <div class="locs">${L.map(l=>`<div class="loc"><h3>${esc(l.name)}</h3><p>${l.address?esc(l.address):'Address '+TBD()}</p>${l.hours?`<p>${esc(l.hours)}</p>`:''}${l.google_maps_url?`<a href="${esc(l.google_maps_url)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>`:''}</div>`).join('')}</div></section>
 ${(DB.Gallery&&DB.Gallery[id]&&DB.Gallery[id].length)?`<section><div class="eyebrow">Gallery</div><h2 style="margin-top:10px">Take a look</h2>
@@ -713,10 +729,10 @@ ${reviewsSection(id)}
 document.getElementById('hdrlogo').src=LOGO.kbk;
 document.getElementById('snap').textContent='Data snapshot: '+DB.snapshot;
 const app=document.getElementById('app');let pending=null;
-function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}CURID=id;PRETTY(rawId);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital';app.innerHTML=id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();document.title=(id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
+function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}CURID=id;PRETTY(rawId);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital'||id==='order';const isOrder=id==='order';app.innerHTML=isOrder?orderPage('matsatay'):id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();if(isOrder){const bx=document.querySelector('.cart-box.inline');if(bx)bindCart(bx)}document.title=(isOrder?'Tempah Mat Satay Kodiang · ':id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
  if(deepRoom){const r=document.querySelector(`[data-room="${deepRoom}"]`);if(r){r.scrollIntoView({block:'center'});OV=r;openRoom(deepRoom)}return}
  if(pending&&!b&&!isStory){const el=document.getElementById(pending);pending=null;if(el){el.scrollIntoView();return}}window.scrollTo(0,0)}
-document.addEventListener('click',e=>{if(e.target.closest('[data-cart]')){openCart();return}});
+document.addEventListener('click',e=>{const c=e.target.closest('[data-cart]');if(c){openCart(c.dataset.cart);return}});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-goto]');if(!a)return;const t=a.dataset.goto;
  const cur=CURID;if(cur==='digital'&&t.startsWith('dg-')){const el=document.getElementById(t);if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}return}if(cur!=='story'&&cur!=='digital'&&!BIZ.find(x=>x.biz_id===cur)){const el=document.getElementById(t);if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}}else pending=t});
 let CURID='';
