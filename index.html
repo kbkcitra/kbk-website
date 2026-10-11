@@ -325,6 +325,36 @@ footer{border-top:1px solid var(--line);padding-block:36px;color:var(--ink-2);fo
 .bsum{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
 .bsum .est{color:var(--ink-2);font-size:14px}.bsum .est b{color:var(--ink);font-variant-numeric:tabular-nums}
 .bsum .wa-btn{font-size:15px;padding:11px 20px}
+.bpick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.dbtn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.dbtn:hover,.dbtn:focus-visible{border-color:var(--accent)}
+.dbtn .dl{font-size:12px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em}.dbtn b{font-size:15px;font-weight:600}
+.bf.b2{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.bsum button.wa-btn{border:0;cursor:pointer;font:inherit;font-weight:700}
+.bdone{display:flex;flex-direction:column;gap:12px}.bdone>div{display:flex;gap:12px;align-items:flex-start}
+.bdone .ok{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#06251B;display:grid;place-items:center;font-weight:800}
+.bdone p{margin:4px 0 0;color:var(--ink-2);font-size:14px}.bdone p b{color:var(--ink)}
+.bdone .wa-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:15px;padding:12px 18px}
+.cal{position:fixed;inset:0;z-index:120;background:var(--bg);display:flex;flex-direction:column;max-width:560px;margin:0 auto;box-shadow:0 0 0 100vmax rgba(0,0,0,.55)}
+.chead{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.chead b{display:block;font-size:16px}.chead small{color:var(--ink-2);font-size:13px}
+.cwk{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-2);text-align:center}
+.cbody{flex:1;overflow-y:auto;padding:4px 12px 16px;overscroll-behavior:contain}
+.cm h4{font-family:var(--body);font-size:20px;margin:18px 4px 10px}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cd{aspect-ratio:1/1.25;border:1px solid var(--line);border-radius:10px;background:none;color:var(--ink);font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;padding:0;min-width:0}
+.cd b{font-size:15px;font-weight:600}.cd small{font-size:10.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.cd:hover:not(:disabled){border-color:var(--accent)}
+.cd:disabled{cursor:default;opacity:.35}
+.cd.bk{background:rgba(169,179,206,.12);opacity:1}.cd.bk b{text-decoration:line-through;color:var(--ink-2)}.cd.bk:disabled{opacity:.75}
+.cd.bk.coonly{opacity:1;border-style:dashed}.cd.bk.coonly b{text-decoration:none;color:var(--ink)}
+.cd.ps{opacity:.25}.cd.ps.bk{opacity:.25}
+.cd.rng{background:rgba(47,191,148,.18);border-color:transparent}
+.cd.sel{background:var(--accent);border-color:var(--accent);opacity:1}.cd.sel b,.cd.sel small{color:#06251B;text-decoration:none}
+.ce{display:block}
+.cfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg-2)}
+.cfoot .wa-btn{border:0;cursor:pointer;font:inherit;font-weight:700;padding:11px 20px}.cfoot .wa-btn:disabled{opacity:.4;cursor:default}
+
 
 .ovact{display:flex;align-items:center;gap:8px;flex:none}
 .sharebtn{display:inline-flex;align-items:center;gap:6px;background:#1FA855;color:#fff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
@@ -593,6 +623,9 @@ function storyPage(){const chips=k=>`<div class="chips">${FACTS[k].map(f=>`<span
 const ROOM_IMG=id=>'rooms/'+id+'.webp';
 const SITE_URL='https://kbkcitrawaja.my/';
 const WA_ICON='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
+const SHARE_PATH={daleena:'stay',matsatay:'order'};
+const SHARE_TEXT={daleena:`🏡 D'Aleena Collection – penginapan di Kodiang & Sungai Petani\nInn 9 bilik, guesthouse dan homestay keluarga (sehingga 12 orang). Lihat gambar setiap bilik, semak harga dan tempah terus di WhatsApp:`,matsatay:`🍢 Tempah Mat Satay Kodiang secara online – pilih menu, tetapkan masa ambil, hantar terus ke WhatsApp:`};
+const bizShare=(b,id)=>(SHARE_TEXT[id]||`${b.name} – ${b.tagline}`)+'\n'+SITE_URL+(SITE_URL.endsWith('/')?'':'#')+(SHARE_PATH[id]||id);
 const shareWA=text=>'https://wa.me/?text='+encodeURIComponent(text);
 const roomSlug=k=>{const [l,i]=k.split('|');return 'r-'+l+'-'+i.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-$/,'')};
 const docId=k=>k.replace(/[^A-Za-z0-9]+/g,'_');
@@ -646,11 +679,94 @@ async function addFiles(files){const k=CUR.k,st=document.getElementById('edst');
   st.textContent='';if(ids.length){const o=OVR[k]||{};await saveRoom(k,{added:[...(o.added||[]),...ids]});CUR.i=photosFor(k).length-1;drawGallery();toast(ids.length+' photo'+(ids.length>1?'s':'')+' added')}}
 function shrink(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/webp',0.8)};im.onerror=()=>rej(new Error('Not an image'));im.src=u})}
 
+// ---- room availability (Supabase: web_availability / web_hold) ----
+const AV_SB='https://yztfmdrodxgmamamhshf.supabase.co',AV_KEY='sb_publishable_cywx6nLhT1MLMiYV_Dmrnw_K5R0Ycdq';
+let AVAIL=null,AVAIL_OK=false,AVAIL_AT=0;
+async function avRpc(fn,body){const r=await fetch(AV_SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:AV_KEY,'Content-Type':'application/json'},body:JSON.stringify(body||{})});if(!r.ok)throw new Error('rpc '+r.status);return r.json()}
+async function loadAvail(force){if(!force&&AVAIL&&Date.now()-AVAIL_AT<120000)return AVAIL;
+  try{const j=await avRpc('web_availability',{p_days:200});AVAIL={};for(const u in j)AVAIL[u]=new Set(j[u]);AVAIL_OK=true}catch(e){AVAIL=AVAIL||{};AVAIL_OK=false}
+  AVAIL_AT=Date.now();return AVAIL}
+const MYT=()=>new Date(Date.now()+8*36e5).toISOString().slice(0,10);
+const dAdd=(d,n)=>{const x=new Date(d+'T00:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
+const dDiff=(a,b)=>Math.round((new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5);
+const dFmt=(d,o)=>new Date(d+'T00:00:00Z').toLocaleDateString('ms-MY',Object.assign({timeZone:'UTC',weekday:'short',day:'numeric',month:'short'},o||{}));
+const BM_MON=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+function openCalendar(k,price,sel,onDone){
+  const booked=(AVAIL&&AVAIL[k])||new Set(),today=MYT(),last=dAdd(today,199);let ci=sel.ci||'',co=sel.co||'';
+  const cal=document.createElement('div');cal.className='cal';cal.setAttribute('role','dialog');cal.setAttribute('aria-modal','true');cal.setAttribute('aria-label','Pilih tarikh');
+  const firstBlock=from=>{for(let d=from;d<=last;d=dAdd(d,1))if(booked.has(d))return d;return null};
+  function months(){let out='',y=+today.slice(0,4),m=+today.slice(5,7)-1;
+    for(let i=0;i<7;i++){const mm=(m+i)%12,yy=y+Math.floor((m+i)/12),first=`${yy}-${String(mm+1).padStart(2,'0')}-01`;
+      const dim=new Date(Date.UTC(yy,mm+1,0)).getUTCDate(),lead=(new Date(first+'T00:00:00Z').getUTCDay()+6)%7;
+      let cells='<span class="ce"></span>'.repeat(lead);
+      for(let dd=1;dd<=dim;dd++){const d=`${yy}-${String(mm+1).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+        const past=d<today||d>last,bk=booked.has(d);let cls='cd',dis=past;
+        if(ci&&!co){const fb=firstBlock(ci);if(d<=ci){dis=past||bk}else{dis=past||(fb&&d>fb)}}
+        else dis=past||bk;
+        if(bk)cls+=' bk';if(past)cls+=' ps';
+        if(d===ci||d===co)cls+=' sel';else if(ci&&co&&d>ci&&d<co)cls+=' rng';
+        if(ci&&!co&&!dis&&!past&&d>ci&&bk)cls+=' coonly';
+        cells+=`<button type="button" class="${cls}" data-d="${d}"${dis?' disabled':''} aria-label="${dFmt(d,{year:'numeric'})}${bk?' – penuh':''}"><b>${dd}</b><small>${d===co?'Keluar':d===ci?'Masuk':bk?(ci&&!co&&d>ci&&!dis?'Keluar':'Penuh'):rm(price)}</small></button>`}
+      if(first>last)break;
+      out+=`<div class="cm"><h4>${BM_MON[mm]} ${yy}</h4><div class="cg">${cells}</div></div>`}
+    return out}
+  function draw(keep){const sc=cal.querySelector('.cbody'),top=sc?sc.scrollTop:0;
+    const n=ci&&co?dDiff(ci,co):0;
+    cal.innerHTML=`<div class="chead"><button type="button" class="x" data-x aria-label="Tutup">×</button><div><b>${ci?(co?`${dFmt(ci)} → ${dFmt(co)}`:`${dFmt(ci)} → pilih daftar keluar`):'Pilih tarikh daftar masuk'}</b><small>${n?`${n} malam · ${rm(price*n)}`:(AVAIL_OK?'Tarikh bergaris = sudah ditempah':'Kekosongan tidak dapat disemak sekarang')}</small></div></div>
+     <div class="cwk"><span>Isn</span><span>Sel</span><span>Rab</span><span>Kha</span><span>Jum</span><span>Sab</span><span>Ahd</span></div>
+     <div class="cbody">${months()}</div>
+     <div class="cfoot"><button type="button" class="linkbtn" data-clr>Kosongkan</button><button type="button" class="wa-btn" data-ok${n?'':' disabled'}>Simpan${n?` · ${n} malam`:''}</button></div>`;
+    if(keep)cal.querySelector('.cbody').scrollTop=top;
+    else{const t=cal.querySelector('.cd.sel');if(t)t.scrollIntoView({block:'center'})}}
+  cal.onclick=e=>{if(e.target.closest('[data-x]')){close();return}
+    if(e.target.closest('[data-clr]')){ci=co='';draw(true);return}
+    if(e.target.closest('[data-ok]')){if(ci&&co){onDone({ci,co});close()}return}
+    const c=e.target.closest('.cd');if(!c||c.disabled)return;const d=c.dataset.d;
+    if(!ci||co||d<=ci){if(booked.has(d)){toast('Tarikh ini sudah penuh.');return}ci=d;co=''}
+    else co=d;
+    draw(true)};
+  const key=e=>{if(e.key==='Escape'){e.stopImmediatePropagation();close()}};
+  function close(){cal.remove();document.removeEventListener('keydown',key,true)}
+  document.addEventListener('keydown',key,true);document.body.appendChild(cal);draw(false);cal.querySelector('[data-x]').focus()}
+
+function bindBooking(el,k,l,item,r,b){
+  const price=Number(r.price_min_rm)||0,sel={ci:'',co:''};let busy=false;
+  const q=s=>el.querySelector(s);
+  loadAvail().then(()=>{if(!AVAIL_OK)q('#best').textContent='Pilih tarikh untuk lihat anggaran harga.'});
+  const pick=async()=>{await loadAvail(true);openCalendar(k,price,sel,v=>{sel.ci=v.ci;sel.co=v.co;upd()})};
+  q('#dbtn').onclick=pick;q('#dbtn2').onclick=pick;
+  const upd=()=>{const n=sel.ci&&sel.co?dDiff(sel.ci,sel.co):0;
+    q('#dci').textContent=sel.ci?dFmt(sel.ci):'Pilih tarikh';q('#dco').textContent=sel.co?dFmt(sel.co):'–';
+    q('#best').innerHTML=n?`${n} malam × ${rm(price)} = <b>${rm(price*n)}</b>`:'Pilih tarikh untuk lihat anggaran harga.'};
+  q('#bform').addEventListener('input',upd);upd();
+  const msgFor=(n,hold)=>{const g=q('#bg').value,nm=q('#bn').value.trim();
+    return `*D'ALEENA COLLECTION – TEMPAHAN BARU*\n(ditempah melalui kbkcitrawaja.my)${hold?`\nNo. rujukan: *${hold.ref}*`:''}\n\n`+
+    `Penginapan: ${l.name}\nBilik: ${item} (${rm(price)}/malam)\nDaftar masuk: ${dFmt(sel.ci,{year:'numeric'})}\nDaftar keluar: ${dFmt(sel.co,{year:'numeric'})} (${n} malam)\nTetamu: ${g||'-'} orang\nNama: ${nm||'-'}\n\n*Jumlah: ${rm(price*n)}*\n\n`+
+    (hold?`Mohon tahan tempahan ini untuk saya. Saya akan membuat bayaran dalam masa 2 jam (sebelum ${hold.expires}) dan hantar resit di sini. Mohon kongsikan maklumat bayaran. Terima kasih.`
+         :`Mohon sahkan kekosongan bilik. Terima kasih.`)};
+  q('#bgo').onclick=async()=>{if(busy)return;const tt=document.getElementById('toast');if(tt)tt.hidden=true;
+    if(!sel.ci||!sel.co){pick();return}
+    const nm=q('#bn').value.trim();if(nm.length<2){q('#bn').focus();toast('Sila isi nama anda.');return}
+    const n=dDiff(sel.ci,sel.co);busy=true;const btn=q('#bgo');btn.textContent='Menyemak…';
+    let hold=null;
+    try{const j=await avRpc('web_hold',{p_unit:k,p_in:sel.ci,p_out:sel.co,p_guests:+q('#bg').value||1,p_name:nm});
+      if(j&&j.ok)hold=j;
+      else if(j&&j.error==='taken'){await loadAvail(true);toast('Maaf, tarikh ini baru sahaja ditempah. Sila pilih tarikh lain.');sel.ci=sel.co='';upd();busy=false;btn.textContent='Tempah sekarang';return}
+      else if(j&&j.error==='dates'){toast('Tarikh tidak sah (maksimum 30 malam).');busy=false;btn.textContent='Tempah sekarang';return}}
+    catch(e){/* availability service not reachable: fall back to asking admin */}
+    busy=false;btn.textContent='Tempah sekarang';
+    const link=wa(b.whatsapp)+'?text='+encodeURIComponent(msgFor(n,hold));
+    q('#bookbar').innerHTML=`<div class="bdone">${hold?`<div><div class="ok">✓</div><div><b>Bilik ditahan untuk anda sehingga ${esc(hold.expires)}</b><p>No. rujukan <b>${esc(hold.ref)}</b> · ${dFmt(sel.ci)} → ${dFmt(sel.co)} · ${n} malam · <b>${rm(price*n)}</b></p><p>Langkah terakhir: hantar tempahan di WhatsApp, kemudian buat bayaran dalam masa 2 jam. Tanpa bayaran, tahanan akan dilepaskan secara automatik.</p></div></div>`
+      :`<div><b>Hampir siap</b><p>${dFmt(sel.ci)} → ${dFmt(sel.co)} · ${n} malam · <b>${rm(price*n)}</b></p><p>Hantar tempahan di WhatsApp dan admin kami akan mengesahkan kekosongan.</p></div>`}
+      <a class="wa-btn" href="${link}" target="_blank" rel="noopener">${WA_ICON} Hantar tempahan di WhatsApp</a></div>`;
+    try{window.open(link,'_blank','noopener')}catch(e){}};
+}
+
 function openRoom(k){
   const [loc,item]=k.split('|'),l=DB.Locations.find(x=>x.loc_id===loc),r=DB.Prices.map(fix).find(p=>p.loc_id===loc&&p.item===item),b=BIZ.find(x=>x.biz_id==='daleena');
   const note=DB.RoomNotes[k]||r.detail||'';CUR={k,i:0,edit:false};
   const el=document.getElementById('ov');
-  const shareText=`${l.name} – ${item}\n${priceTxt(r).replace(/<[^>]+>/g,'')} per night${note?' · '+note:''}\nSee all photos and book here: ${SITE_URL}${roomSlug(k)}`;
+  const shareText=`🏡 ${l.name} – ${item}\n${priceTxt(r).replace(/<[^>]+>/g,'')} semalam${note?' · '+note:''}\nLihat semua gambar dan tempah di sini: ${SITE_URL}${roomSlug(k)}`;
   el.innerHTML=`<div class="ovbox" role="dialog" aria-modal="true" aria-label="${esc(item)}">
    <div class="ovtop"><div><h3>${esc(item)} <span style="color:var(--accent);font-weight:600">· ${priceTxt(r)}/night</span></h3><small>${esc(l.name)}${note?' · '+esc(note):''}</small></div>
     <div class="ovact">${CAN_EDIT?'<button class="edbtn" id="edbtn">Edit photos</button>':''}<a class="sharebtn" href="${shareWA(shareText)}" target="_blank" rel="noopener" aria-label="Share on WhatsApp">${WA_ICON}<span>Share</span></a><button class="x" id="ovx" aria-label="Close">×</button></div></div>
@@ -659,12 +775,13 @@ function openRoom(k){
     ${CAN_EDIT?`<div class="edbar" id="edbar" hidden><label class="addbtn" for="edfile">+ Add photos</label><input id="edfile" type="file" accept="image/*" multiple hidden><span id="edst" class="edst"></span><button class="linkbtn" id="edrm" hidden></button><span class="edhint">Tap × to remove a photo, ☆ to make it the cover.</span></div>`:''}
     <div class="thumbs" id="ovth"></div>
    </div>
-   <div class="bookbar"><form class="bf" id="bform" onsubmit="return false">
-     <label for="bin">Check-in<input type="date" id="bin"></label>
-     <label for="bout">Check-out<input type="date" id="bout"></label>
-     <label for="bg">Guests<input type="number" id="bg" min="1" value="2"></label>
-     <label for="bn">Your name<input type="text" id="bn" placeholder="Name" autocomplete="name"></label></form>
-     <div class="bsum"><span class="est" id="best">Pick your dates to see the estimate.</span><a class="wa-btn" id="bgo" target="_blank" rel="noopener">Book on WhatsApp</a></div></div></div>`;
+   <div class="bookbar" id="bookbar"><div class="bpick">
+     <button type="button" class="dbtn" id="dbtn"><span class="dl">Daftar masuk</span><b id="dci">Pilih tarikh</b></button>
+     <button type="button" class="dbtn" id="dbtn2"><span class="dl">Daftar keluar</span><b id="dco">–</b></button></div>
+     <form class="bf b2" id="bform" onsubmit="return false">
+     <label for="bg">Tetamu<input type="number" id="bg" min="1" value="2" inputmode="numeric"></label>
+     <label for="bn">Nama anda<input type="text" id="bn" placeholder="Nama penuh" autocomplete="name"></label></form>
+     <div class="bsum"><span class="est" id="best">Pilih tarikh untuk lihat anggaran harga.</span><button type="button" class="wa-btn" id="bgo">Tempah sekarang</button></div></div></div>`;
   const show=j=>{const n=photosFor(k).length;if(!n)return;CUR.i=(j+n)%n;drawGallery()};
   el.querySelector('#ovp').onclick=()=>show(CUR.i-1);el.querySelector('#ovn').onclick=()=>show(CUR.i+1);
   el.querySelector('#ovth').onclick=e=>{const t=e.target.closest('[data-i]'),x=e.target.closest('[data-rm]'),c=e.target.closest('[data-cv]');
@@ -674,16 +791,7 @@ function openRoom(k){
   if(CAN_EDIT){el.querySelector('#edbtn').onclick=()=>{CUR.edit=!CUR.edit;drawGallery()};
     el.querySelector('#edfile').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)addFiles(f)};
     el.querySelector('#edrm').onclick=()=>{saveRoom(k,{removed:[]});toast('Hidden photos restored')}}
-  const today=new Date().toISOString().slice(0,10);el.querySelector('#bin').min=today;el.querySelector('#bout').min=today;
-  const upd=()=>{const ci=el.querySelector('#bin').value,co=el.querySelector('#bout').value,g=el.querySelector('#bg').value,n=el.querySelector('#bn').value.trim();
-    let nights=0;if(ci&&co)nights=Math.round((new Date(co)-new Date(ci))/864e5);
-    const price=Number(r.price_min_rm)||0;
-    el.querySelector('#best').innerHTML=nights>0?`${nights} night${nights>1?'s':''} × ${rm(price)} = <b>${rm(price*nights)}</b> (estimate)`:(ci&&co?'Check-out must be after check-in.':'Pick your dates to see the estimate.');
-    const fmt=d=>d?new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'-';
-    const msg=`Hi D'Aleena Collection, I would like to book:\n\n`+
-      `Property: ${l.name}\nRoom: ${item} (${rm(price)}/night)\nCheck-in: ${fmt(ci)}\nCheck-out: ${fmt(co)}${nights>0?` (${nights} night${nights>1?'s':''})`:''}\nGuests: ${g||'-'}\nName: ${n||'-'}\n\nPlease confirm availability. Thank you.`;
-    el.querySelector('#bgo').href=wa(b.whatsapp)+'?text='+encodeURIComponent(msg)};
-  el.querySelector('#bform').addEventListener('input',upd);upd();
+  bindBooking(el,k,l,item,r,b);
   const close=()=>{CUR=null;el.hidden=true;el.innerHTML='';document.body.style.overflow='';document.removeEventListener('keydown',key);OV?.focus()};
   const key=e=>{if(e.key==='Escape')close();if(e.key==='ArrowRight'&&e.target.tagName!=='INPUT')show(CUR.i+1);if(e.key==='ArrowLeft'&&e.target.tagName!=='INPUT')show(CUR.i-1)};
   el.querySelector('#ovx').onclick=close;el.onclick=e=>{if(e.target===el)close()};document.addEventListener('keydown',key);
@@ -709,7 +817,7 @@ function reviewsSection(id){const R=(DB.Reviews||{})[id]||{items:[]};const b=BIZ
  <div class="rv-more">${(R.all||[]).length?(cards?`<p>Showing ${Math.min(R.items.length,4)} of our Google reviews. <b>Click here to see all reviews:</b></p>`:'')+`<div class="rv-all">${R.all.map(([n,l])=>`<a href="${esc(l)}" target="_blank" rel="noopener">${cards?'':'Write a review for '}${esc(n)} on Google ↗</a>`).join('')}</div>`:''}</div></section>`}
 function ent(id){const b=BIZ.find(x=>x.biz_id===id),H=by('Highlights',id).sort((a,b)=>a.sort-b.sort),S=DB.Steps.filter(s=>s.biz_id===id).sort((a,b)=>a.step_no-b.step_no),L=by('Locations',id);
 return `<a class="back" href="#home" data-goto="businesses">← All businesses</a>
-<div class="ent-hero">${art(id)}<div class="in"><img class="ent-logo" src="${LOGO[id]}" alt="${esc(b.name)} logo"><div class="eyebrow" style="color:#9FE8CF">${esc(b.kind)}</div><h1>${esc(b.name)}</h1><p>${esc(b.tagline)}</p><a class="sharebtn hero-share" href="${shareWA(`${b.name} – ${b.tagline}\n${SITE_URL}${id}`)}" target="_blank" rel="noopener">${WA_ICON}<span>Share on WhatsApp</span></a></div></div>
+<div class="ent-hero">${art(id)}<div class="in"><img class="ent-logo" src="${LOGO[id]}" alt="${esc(b.name)} logo"><div class="eyebrow" style="color:#9FE8CF">${esc(b.kind)}</div><h1>${esc(b.name)}</h1><p>${esc(b.tagline)}</p><a class="sharebtn hero-share" href="${shareWA(bizShare(b,id))}" target="_blank" rel="noopener">${WA_ICON}<span>Share on WhatsApp</span></a></div></div>
 <section><div class="eyebrow">Why us</div><h2 style="margin-top:10px">What makes us different</h2>
 <div class="cols3">${H.map(h=>`<div class="feat"><h3>${esc(h.title)}</h3><p>${/your own words/i.test(h.text)?TBD('Your words'):esc(h.text)}</p></div>`).join('')}</div></section>
 ${id==='daleena'?homesSection(b):`<section><div class="eyebrow">${id==='matsatay'?'Menu':'Services & prices'}</div><div class="menu-head"><h2 style="margin-top:10px">${id==='matsatay'?'Our menu':'What we serve'}</h2>${CARTS[id]?`<button type="button" class="cartbtn" data-cart="${id}">🛒 Add to cart · Tempah</button>`:''}</div>
@@ -724,12 +832,12 @@ ${(DB.Gallery&&DB.Gallery[id]&&DB.Gallery[id].length)?`<section><div class="eyeb
 ${reviewsSection(id)}
 <section><div class="contact"><div><div class="eyebrow">Book & contact</div><h2 style="margin-top:10px">Reserve with us</h2>
 <dl style="margin-top:24px"><dt>WhatsApp</dt><dd>${b.whatsapp?esc(b.whatsapp):TBD()}</dd><dt>Email</dt><dd>${b.email?esc(b.email):TBD()}</dd>${fbOk(b.facebook_url)?`<dt>Facebook</dt><dd><a class="fb" href="${esc(b.facebook_url)}" target="_blank" rel="noopener">Visit our page ↗</a></dd>`:''}</dl></div>
-<div class="cta-box"><h3>Ready?</h3><p>Message ${esc(b.name)} on WhatsApp with what you need.</p>${b.whatsapp?`<a class="wa-btn" href="${wa(b.whatsapp)}" target="_blank" rel="noopener">Chat on WhatsApp</a>`:TBD('WhatsApp number')} <a class="sharebtn" style="margin-left:8px" href="${shareWA(`${b.name} – ${b.tagline}\n${SITE_URL}${id}`)}" target="_blank" rel="noopener">${WA_ICON}<span>Share</span></a></div></div></section>`}
+<div class="cta-box"><h3>Ready?</h3><p>Message ${esc(b.name)} on WhatsApp with what you need.</p>${b.whatsapp?`<a class="wa-btn" href="${wa(b.whatsapp)}" target="_blank" rel="noopener">Chat on WhatsApp</a>`:TBD('WhatsApp number')} <a class="sharebtn" style="margin-left:8px" href="${shareWA(bizShare(b,id))}" target="_blank" rel="noopener">${WA_ICON}<span>Share</span></a></div></div></section>`}
 
 document.getElementById('hdrlogo').src=LOGO.kbk;
 document.getElementById('snap').textContent='Data snapshot: '+DB.snapshot;
 const app=document.getElementById('app');let pending=null;
-function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}CURID=id;PRETTY(rawId);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital'||id==='order';const isOrder=id==='order';app.innerHTML=isOrder?orderPage('matsatay'):id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();if(isOrder){const bx=document.querySelector('.cart-box.inline');if(bx)bindCart(bx)}document.title=(isOrder?'Tempah Mat Satay Kodiang · ':id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
+function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}if(id==='stay')id='daleena';CURID=id;PRETTY(rawId);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital'||id==='order';const isOrder=id==='order';app.innerHTML=isOrder?orderPage('matsatay'):id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();if(isOrder){const bx=document.querySelector('.cart-box.inline');if(bx)bindCart(bx)}document.title=(isOrder?'Tempah Mat Satay Kodiang · ':id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
  if(deepRoom){const r=document.querySelector(`[data-room="${deepRoom}"]`);if(r){r.scrollIntoView({block:'center'});OV=r;openRoom(deepRoom)}return}
  if(pending&&!b&&!isStory){const el=document.getElementById(pending);pending=null;if(el){el.scrollIntoView();return}}window.scrollTo(0,0)}
 document.addEventListener('click',e=>{const c=e.target.closest('[data-cart]');if(c){openCart(c.dataset.cart);return}});
