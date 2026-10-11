@@ -418,18 +418,22 @@ const roomSlug=k=>{const [l,i]=k.split('|');return 'r-'+l+'-'+i.toLowerCase().re
 const docId=k=>k.replace(/[^A-Za-z0-9]+/g,'_');
 // ---- live photo edits (db) ----
 let OVR={"kodiang|G1": {"key": "kodiang|G1", "added": [], "cover": null, "removed": ["1SE7z6I1aOt50mU0SkR6ib4Er54YGdnMg", "1Agvr2tdiZI0H0578euv8Udoq4_PPjxsT"]}, "kodiang|G2": {"key": "kodiang|G2", "added": [], "cover": "1jU0fOTASa1d60gqaonP0BSBlt1eLfANa", "removed": []}, "mutiara|Mutiara Unit 288": {"key": "mutiara|Mutiara Unit 288", "added": [], "cover": "1iFSaHJDc0p9fTHUS0sJz7ifg9W8j4s_S", "removed": ["1uJ9HO0jFYr_tf5Ay-QRP6XcQuTVgofRk", "1CzbB9oj1fvpid83_5clYL5LTsYCx7v6L", "1P2NFoWhXxyln52fWM_W27rn_km2ofAus", "1YQun_rXsvAhCgrZbd3Kqm9GsE-Q5f9Pm"]}, "prima|PR1MA Unit 1132": {"key": "prima|PR1MA Unit 1132", "added": [], "cover": "1dk1yj74Fqf9kBJykThYsH2wQPW91nYtS", "removed": ["1MUoj55EzirCm4gtRZwX9-6nHoehp91xc", "1edXdXPi6wi0jvi54nzHnAXhtWtvT5QDQ", "1J1GXQBls04_hz6dimPlkzzzGvUIt-_T0", "1wpgpiCgFyTN7XZDsXdaYstzYjRMxE7Pi", "1Q6S6uDuouinoxi3k93-4F7p4iq14sRyj", "1cQWe6BLi_0JjjdOLlGSHqBoB2385dDGw", "1fNkTWIUpUfvI-584YERvkgWXeKdXAS-7", "1HnSYyO2sO4wLMikul39huvsnaWyagRqe", "1tzEqMD2rGqWt6EAeGbD_9Eid4_cJiqQ8", "1291l6pFI8cM8BjuOQYKw3kAdpZLvtsSP", "1hELFbVvmc9Jn7a1u3mGlCfBaMDHmHvtK", "1o6kkL_C5d8Q4MYxDeXMeniugBekWgprk"]}}, DBX=null, ASSETS=null, CAN_EDIT=false;
+let ADDED_SRC=a=>'/_blob/'+a;
+const BACKEND={save:null,upload:null};
 function photosFor(k){const o=OVR[k]||{},rm=new Set(o.removed||[]);
   let list=(DB.RoomPhotos[k]||[]).filter(id=>!rm.has(id)).map(id=>({id,src:ROOM_IMG(id)}));
-  (o.added||[]).forEach(a=>list.push({id:'a:'+a,src:'/_blob/'+a}));
+  (o.added||[]).forEach(a=>list.push({id:'a:'+a,src:ADDED_SRC(a)}));
   if(o.cover){const j=list.findIndex(p=>p.id===o.cover);if(j>0)list.unshift(list.splice(j,1)[0])}
   return list}
 async function saveRoom(k,patch){const o={removed:[],added:[],cover:null,...(OVR[k]||{}),...patch};OVR[k]=o;refreshViews();
-  if(!DBX)return;try{await DBX.collection('roomPhotos').doc(docId(k)).set({key:k,removed:o.removed,added:o.added,cover:o.cover||null})}catch(e){toast('Could not save: '+(e.code||e.message))}}
+  if(!BACKEND.save)return;try{await BACKEND.save(k,o)}catch(e){toast('Could not save: '+(e.code||e.message))}}
 function toast(t){let el=document.getElementById('toast');if(!el){el=document.createElement('div');el.id='toast';el.className='toast';document.body.appendChild(el)}el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,3500)}
 (async()=>{try{
   if(typeof claude==='undefined'){refreshViews();return}
   const [db,user,assets]=await Promise.all([claude.use('db'),claude.use('user'),claude.use('assets')]);
   DBX=db;ASSETS=assets;CAN_EDIT=!!(assets&&user&&await user.canEdit());
+  if(db)BACKEND.save=(k,o)=>db.collection('roomPhotos').doc(docId(k)).set({key:k,removed:o.removed,added:o.added,cover:o.cover||null});
+  if(assets)BACKEND.upload=async blob=>(await assets.upload(blob,{type:'image/webp'})).id;
   if(db)db.collection('roomPhotos').onSnapshot(s=>{const n={};s.docs.forEach(d=>{const v=d.data();if(v&&v.key)n[v.key]=v});OVR=n;refreshViews()},()=>{});
   if(CAN_EDIT&&CUR)openRoom(CUR.k);else refreshViews();
 }catch(e){}})();
@@ -458,7 +462,7 @@ function drawGallery(){if(!CUR)return;const el=document.getElementById('ov');con
   const on=el.querySelector('#ovth .tb.on');if(on)on.scrollIntoView({block:'nearest',inline:'nearest'})}
 async function addFiles(files){const k=CUR.k,st=document.getElementById('edst');let done=0;const ids=[];
   for(const f of files){st.textContent=`Uploading ${done+1} of ${files.length}…`;
-    try{const blob=await shrink(f);const r=await ASSETS.upload(blob,{type:'image/webp'});ids.push(r.id)}catch(e){toast('Upload failed: '+(e.code||e.message))}done++}
+    try{const blob=await shrink(f);ids.push(await BACKEND.upload(blob))}catch(e){toast('Upload failed: '+(e.code||e.message))}done++}
   st.textContent='';if(ids.length){const o=OVR[k]||{};await saveRoom(k,{added:[...(o.added||[]),...ids]});CUR.i=photosFor(k).length-1;drawGallery();toast(ids.length+' photo'+(ids.length>1?'s':'')+' added')}}
 function shrink(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/webp',0.8)};im.onerror=()=>rej(new Error('Not an image'));im.src=u})}
 
@@ -552,4 +556,53 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-goto]');if
  const cur=location.hash.slice(1);if(cur!=='story'&&!BIZ.find(x=>x.biz_id===cur)){const el=document.getElementById(t);if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth'})}}else pending=t});
 addEventListener('hashchange',render);render();
 </script>
+<script>
+/* ===== Website admin (kbkcitrawaja.my) — photo editing for D'Aleena rooms =====
+   Reads photo edits from Supabase (public read). Admin login (Supabase Auth, email + password)
+   unlocks Edit photos; writes are allowed by database rules only for admin emails. */
+(function(){
+const SB_URL='https://yztfmdrodxgmamamhshf.supabase.co', SB_KEY='sb_publishable_cywx6nLhT1MLMiYV_Dmrnw_K5R0Ycdq';
+const STORE=SB_URL+'/storage/v1/object/public/website/';
+ADDED_SRC=a=>STORE+a;
+let SB=null;
+async function loadOvr(){try{const r=await fetch(SB_URL+'/rest/v1/web_room_photos?select=key,removed,added,cover',{headers:{apikey:SB_KEY}});if(!r.ok)return;const rows=await r.json();const n={};rows.forEach(v=>{n[v.key]={removed:v.removed||[],added:v.added||[],cover:v.cover}});OVR=n;refreshViews()}catch(e){}}
+function loadLib(){return window.supabase?Promise.resolve():new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';s.onload=res;s.onerror=()=>rej(new Error('Could not load login library'));document.head.appendChild(s)})}
+async function client(){await loadLib();if(!SB)SB=window.supabase.createClient(SB_URL,SB_KEY);return SB}
+async function becomeAdmin(){const sb=await client();const {data,error}=await sb.rpc('is_web_admin');if(error||data!==true)return false;
+  CAN_EDIT=true;
+  BACKEND.save=async(k,o)=>{const {error}=await sb.from('web_room_photos').upsert({key:k,removed:o.removed||[],added:o.added||[],cover:o.cover||null,updated_at:new Date().toISOString()});if(error)throw error};
+  BACKEND.upload=async blob=>{const id=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));const p='rooms/'+id+'.webp';const {error}=await sb.storage.from('website').upload(p,blob,{contentType:'image/webp',cacheControl:'31536000',upsert:false});if(error)throw error;return p};
+  bar();await loadOvr();if(CUR)openRoom(CUR.k);return true}
+function bar(){let b=document.getElementById('adminbar');if(!b){b=document.createElement('div');b.id='adminbar';document.body.appendChild(b)}
+  b.innerHTML='<span>● Admin mode</span><a href="#daleena">Edit D’Aleena photos</a><button type="button" id="adminout">Sign out</button>';
+  b.querySelector('#adminout').onclick=async()=>{try{await (await client()).auth.signOut()}catch(e){}CAN_EDIT=false;BACKEND.save=null;BACKEND.upload=null;b.remove();if(CUR)openRoom(CUR.k);toast('Signed out')}}
+function openLogin(){let m=document.getElementById('adminlogin');if(m){m.hidden=false;return}
+  m=document.createElement('div');m.id='adminlogin';m.innerHTML=`<form class="albox" autocomplete="on"><h3>Admin sign in</h3><p>For KBK Citra Waja staff only.</p>
+   <label>Email<input type="email" name="email" autocomplete="username" required></label>
+   <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+   <div class="alerr" hidden></div><div class="alact"><button type="button" class="alx">Cancel</button><button type="submit" class="wa-btn">Sign in</button></div></form>`;
+  document.body.appendChild(m);const f=m.querySelector('form'),er=m.querySelector('.alerr');
+  m.querySelector('.alx').onclick=()=>{m.hidden=true};
+  f.onsubmit=async e=>{e.preventDefault();er.hidden=true;const btn=f.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Signing in…';
+    try{const sb=await client();const {error}=await sb.auth.signInWithPassword({email:f.email.value.trim(),password:f.password.value});
+      if(error)throw error;if(!(await becomeAdmin())){await sb.auth.signOut();throw new Error('This account is not a website admin.')}
+      m.hidden=true;f.reset();toast('Signed in. Open any room and tap Edit photos.')}
+    catch(x){er.textContent=x.message||'Sign-in failed';er.hidden=false}finally{btn.disabled=false;btn.textContent='Sign in'}}}
+window.openAdminLogin=openLogin;
+const st=document.createElement('style');st.textContent=`#adminbar{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;display:flex;gap:12px;align-items:center;background:#0F1B40;border:1px solid var(--accent);color:var(--ink);padding:8px 14px;border-radius:999px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#adminbar span{color:var(--accent);font-weight:600}#adminbar a{color:var(--ink)}#adminbar button{background:none;border:1px solid var(--line);color:var(--ink-2);border-radius:999px;padding:4px 10px;cursor:pointer}
+#adminlogin[hidden]{display:none}
+#adminlogin{position:fixed;inset:0;z-index:80;background:rgba(5,10,28,.75);display:grid;place-items:center;padding:16px}
+.albox{width:min(380px,100%);background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:grid;gap:12px}
+.albox h3{margin:0}.albox p{margin:0;color:var(--ink-2);font-size:14px}.albox label{display:grid;gap:6px;font-size:13px;color:var(--ink-2)}
+.albox input{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit}
+.alerr{color:#FF9B9B;font-size:13.5px}.alact{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}.alact .alx{background:none;border:1px solid var(--line);color:var(--ink-2);border-radius:10px;padding:8px 14px;cursor:pointer}
+.adminlink{background:none;border:0;color:var(--ink-2);opacity:.55;font:inherit;font-size:12px;cursor:pointer;padding:0;margin-left:12px}`;document.head.appendChild(st);
+const foot=document.querySelector('footer span');if(foot){const a=document.createElement('button');a.type='button';a.className='adminlink';a.textContent='Admin';a.onclick=openLogin;foot.appendChild(a)}
+loadOvr();
+if(location.hash==='#admin'){history.replaceState(null,'','#home');render();openLogin()}
+try{if(Object.keys(localStorage).some(x=>/^sb-.*-auth-token$/.test(x)))client().then(async sb=>{const {data}=await sb.auth.getSession();if(data&&data.session)becomeAdmin()}).catch(()=>{})}catch(e){}
+})();
+</script>
+
 </body></html>
