@@ -329,7 +329,7 @@ footer{border-top:1px solid var(--line);padding-block:36px;color:var(--ink-2);fo
 .dbtn{display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
 .dbtn:hover,.dbtn:focus-visible{border-color:var(--accent)}
 .dbtn .dl{font-size:12px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em}.dbtn b{font-size:15px;font-weight:600}
-.bf.b2{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.bf.b2{grid-template-columns:minmax(0,.7fr) minmax(0,1.5fr) minmax(0,1.5fr)}@media (max-width:700px){.bf.b2{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}.bf.b2 label[for=bn]{grid-column:1/-1;order:-1}}
 .bsum button.wa-btn{border:0;cursor:pointer;font:inherit;font-weight:700}
 .bdone{display:flex;flex-direction:column;gap:12px}.bdone>div{display:flex;gap:12px;align-items:flex-start}
 .bdone .ok{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#06251B;display:grid;place-items:center;font-weight:800}
@@ -387,6 +387,9 @@ body.focus .cart-box.inline .cart-top{top:61px}
 .bnote{color:var(--ink-2);font-size:13px;margin:2px 0 0}
 .bbig{justify-content:center}
 .stay-done{padding:18px}
+.ovbox.booked .ovscroll{display:none}.ovbox.booked .bookbar{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.bsub{font-size:13px}.stay-form{grid-template-columns:2fr 1fr 2fr}@media (max-width:560px){.stay-form{grid-template-columns:2fr 1fr}.stay-form .sp-ph{grid-column:1/-1}}
+.cart-tot [data-paynow]{margin-top:2px;color:var(--ink-2)}
 [data-cal]{max-width:560px}.stay-done .bdone{max-width:620px}
 .stay-box .cart-sum{align-items:flex-start}.stay-box .cart-chips{max-height:none}.sgo{margin-top:12px;width:100%}
 @media (max-width:560px){.stay-box .cart-top{gap:8px}.stay-box .cart-act .wa-btn{padding:8px 14px}}
@@ -779,26 +782,40 @@ function openCalendar(k,price,sel,onDone){const st={ci:sel.ci||'',co:sel.co||''}
 // ---- booking: hold 2 hours, WhatsApp to reservations, pay QR, receipt to finance ----
 function roomCtx(k){const [loc,item]=k.split('|'),l=DB.Locations.find(x=>x.loc_id===loc)||{},r=DB.Prices.map(fix).find(p=>p.loc_id===loc&&p.item===item)||{},b=BIZ.find(x=>x.biz_id==='daleena')||{};
   return {k,loc,item,l,r,b,price:Number(r.price_min_rm)||0}}
-function bookMsg(c,st,g,nm,hold){const n=dDiff(st.ci,st.co);
+// payment rule: check-in within 3 days -> full payment; otherwise 50% deposit, balance due 3 days before check-in
+function payPlan(c,st){const n=dDiff(st.ci,st.co),tot=c.price*n,days=dDiff(MYT(),st.ci);
+  if(days<=3)return {tot,full:true,now:tot,dep:0,bal:0,days};
+  const dep=Math.round(tot/2*100)/100;return {tot,full:false,now:dep,dep,bal:Math.round((tot-dep)*100)/100,due:dAdd(st.ci,-3),days}}
+const cleanPhone=v=>String(v||'').replace(/[^\d+]/g,'');
+function bookMsg(c,st,f,hold){const n=dDiff(st.ci,st.co),P=payPlan(c,st);
   return `*D'ALEENA COLLECTION – TEMPAHAN BARU*\n(ditempah melalui kbkcitrawaja.my)${hold?`\nNo. rujukan: *${hold.ref}*`:''}\n\n`+
-  `Penginapan: ${c.l.name}\nBilik: ${c.item} (${rm(c.price)}/malam)\nDaftar masuk: ${dFmt(st.ci,{year:'numeric'})}\nDaftar keluar: ${dFmt(st.co,{year:'numeric'})} (${n} malam)\nTetamu: ${g||'-'} orang\nNama: ${nm||'-'}\n\n*Jumlah: ${rm(c.price*n)}*\n\n`+
-  (hold?`Mohon tahan tempahan ini untuk saya. Saya akan membuat bayaran dalam masa 2 jam (sebelum ${hold.expires}) melalui DuitNow QR dan menghantar resit kepada Kewangan (${FIN_WA}). Terima kasih.`
-       :`Mohon sahkan kekosongan bilik. Terima kasih.`)}
-async function placeHold(c,st,g,nm){try{const j=await avRpc('web_hold',{p_unit:c.k,p_in:st.ci,p_out:st.co,p_guests:+g||1,p_name:nm});
-  if(j&&j.ok)return {hold:j};if(j&&j.error)return {err:j.error};return {hold:null}}catch(e){return {hold:null}}}
-const holdErr=e=>({taken:'Maaf, tarikh ini baru sahaja ditempah. Sila pilih tarikh lain.',dates:'Tarikh tidak sah (maksimum 30 malam).',name:'Sila isi nama anda.',busy:'Sistem sibuk. Sila cuba sebentar lagi.',unit:'Bilik tidak dijumpai.'}[e]||'Ralat. Sila cuba lagi.');
-function doneHTML(c,st,g,nm,hold){const n=dDiff(st.ci,st.co),tot=rm(c.price*n),link=wa(c.b.whatsapp)+'?text='+encodeURIComponent(bookMsg(c,st,g,nm,hold));
-  const rc=`*RESIT BAYARAN – D'ALEENA COLLECTION*\nNo. rujukan: ${hold?hold.ref:'-'}\nNama: ${nm}\nBilik: ${c.item}, ${c.l.name}\nTarikh: ${dFmt(st.ci,{year:'numeric'})} → ${dFmt(st.co,{year:'numeric'})} (${n} malam)\nJumlah dibayar: ${tot}\n\n(Sila lampirkan gambar resit bayaran)`;
-  const fin=wa(FIN_WA)+'?text='+encodeURIComponent(rc);
-  if(!hold)return `<div class="bdone"><div class="bhead"><div><b>Hampir siap</b><p>${esc(c.item)} · ${dFmt(st.ci)} → ${dFmt(st.co)} · ${n} malam · <b>${tot}</b></p><p>Hantar tempahan di WhatsApp dan admin kami akan mengesahkan kekosongan serta cara bayaran.</p></div></div>
+  `Penginapan: ${c.l.name}\nBilik: ${c.item} (${rm(c.price)}/malam)\nDaftar masuk: ${dFmt(st.ci,{year:'numeric'})}\nDaftar keluar: ${dFmt(st.co,{year:'numeric'})} (${n} malam)\nTetamu: ${f.g||'-'} orang\nNama: ${f.nm||'-'}\nNo Phone: ${f.ph||'-'}\n\n`+
+  `*Jumlah: ${rm(P.tot)}*\n`+(P.full?`Deposit: Tiada\nBaki: Tiada\n\n`:`Deposit (50%): ${rm(P.dep)}\nBaki: ${rm(P.bal)} (sebelum ${dFmt(P.due,{year:'numeric'})})\n\n`)+
+  (hold?`Mohon simpan tempahan ini untuk saya.\nSaya akan membuat bayaran${P.full?'':' deposit '+rm(P.dep)} dalam masa 2 jam (sebelum ${hold.expires}) melalui DuitNow QR.\nTerima kasih.`
+       :`Mohon sahkan kekosongan bilik ini.\nTerima kasih.`)}
+async function placeHold(c,st,f){const body={p_unit:c.k,p_in:st.ci,p_out:st.co,p_guests:+f.g||1,p_name:f.nm,p_phone:f.ph};
+  let j;try{j=await avRpc('web_hold',body)}catch(e){try{delete body.p_phone;j=await avRpc('web_hold',body)}catch(e2){return {hold:null}}}
+  if(j&&j.ok)return {hold:j};if(j&&j.error)return {err:j.error};return {hold:null}}
+const holdErr=e=>({taken:'Maaf, tarikh ini baru sahaja ditempah. Sila pilih tarikh lain.',dates:'Tarikh tidak sah (maksimum 30 malam).',name:'Sila isi nama anda.',phone:'Sila isi nombor telefon yang sah.',busy:'Sistem sibuk. Sila cuba sebentar lagi.',unit:'Bilik tidak dijumpai.'}[e]||'Ralat. Sila cuba lagi.');
+// validate name + phone; returns error text or ''
+const checkInfo=f=>f.nm.length<2?'Sila isi nama anda.':cleanPhone(f.ph).replace(/\D/g,'').length<9?'Sila isi nombor telefon yang sah (contoh 012-345 6789).':'';
+function doneHTML(c,st,f,hold){const n=dDiff(st.ci,st.co),P=payPlan(c,st),resv=c.b.whatsapp||'',link=wa(resv)+'?text='+encodeURIComponent(bookMsg(c,st,f,hold));
+  const rc=`*RESIT BAYARAN – D'ALEENA COLLECTION*\nNo. rujukan: ${hold?hold.ref:'-'}\nNama: ${f.nm}\nNo Phone: ${f.ph}\nBilik: ${c.item}, ${c.l.name}\nTarikh: ${dFmt(st.ci,{year:'numeric'})} → ${dFmt(st.co,{year:'numeric'})} (${n} malam)\nJumlah dibayar: ${rm(P.now)} (${P.full?'bayaran penuh':'deposit 50%'})\n\n(Gambar resit dilampirkan)`;
+  const rcl=wa(resv)+'?text='+encodeURIComponent(rc);
+  if(!hold)return `<div class="bdone"><div class="bhead"><div><b>Hampir siap</b><p>${esc(c.item)} · ${dFmt(st.ci)} → ${dFmt(st.co)} · ${n} malam · <b>${rm(P.tot)}</b></p><p>Hantar tempahan di WhatsApp dan admin kami akan mengesahkan kekosongan serta cara bayaran.</p></div></div>
     <a class="wa-btn bbig" href="${link}" target="_blank" rel="noopener">${WA_ICON} Hantar tempahan di WhatsApp</a></div>`;
-  return `<div class="bdone"><div class="bhead"><div class="ok">✓</div><div><b>Bilik ditahan untuk anda sehingga ${esc(hold.expires)}</b><p>No. rujukan <b>${esc(hold.ref)}</b> · ${esc(c.item)} · ${dFmt(st.ci)} → ${dFmt(st.co)} · ${n} malam · <b>${tot}</b></p></div></div>
+  const rule=P.full?`Daftar masuk dalam ${P.days<=0?'hari ini':P.days+' hari'}, jadi <b>bayaran penuh ${rm(P.tot)}</b> diperlukan untuk menyimpan tempahan.`
+    :`Bayar <b>deposit 50% (${rm(P.dep)})</b> sekarang. Baki <b>${rm(P.bal)}</b> perlu dibayar sebelum <b>${dFmt(P.due,{year:'numeric'})}</b> (3 hari sebelum daftar masuk). Admin kami akan mengingatkan anda.`;
+  return `<div class="bdone"><div class="bhead"><div class="ok">✓</div><div><b>Bilik disimpan untuk anda sehingga ${esc(hold.expires)}</b><p>No. rujukan <b>${esc(hold.ref)}</b> · ${esc(c.item)} · ${dFmt(st.ci)} → ${dFmt(st.co)} · ${n} malam · Jumlah <b>${rm(P.tot)}</b></p></div></div>
    <ol class="bsteps">
-    <li><span class="sn">1</span><div><strong>Hantar tempahan di WhatsApp</strong><p>Kepada pasukan tempahan D'Aleena (${esc(c.b.whatsapp||'')}).</p><a class="wa-btn" href="${link}" target="_blank" rel="noopener">${WA_ICON} Hantar tempahan</a></div></li>
-    <li><span class="sn">2</span><div><strong>Bayar ${tot} dengan DuitNow QR dalam 2 jam</strong><p>Penerima: <b>KBK Citra Waja</b>. Tangkap layar QR ini dan imbas dari aplikasi bank anda.</p><img class="payqr" src="${APPIMG['pay-qr']}" alt="DuitNow QR KBK Citra Waja"><a class="linkbtn" href="${STAY_PAY_URL}" target="_blank" rel="noopener">Buka halaman bayaran ↗</a></div></li>
-    <li><span class="sn">3</span><div><strong>Hantar resit kepada Kewangan</strong><p>WhatsApp ${FIN_WA}. Tempahan disahkan selepas resit diterima.</p><a class="wa-btn" href="${fin}" target="_blank" rel="noopener">${WA_ICON} Hantar resit</a></div></li>
+    <li><span class="sn">1</span><div><strong>Hantar tempahan di WhatsApp</strong><p>Kepada pasukan tempahan D'Aleena Collection (${esc(resv)}).</p><a class="wa-btn" href="${link}" target="_blank" rel="noopener">${WA_ICON} Hantar tempahan</a></div></li>
+    <li><span class="sn">2</span><div><strong>Bayar ${rm(P.now)} dalam masa 2 jam &amp; hantar resit</strong><p>${rule}</p>
+     <p class="bsub">D'Aleena Collection ialah anak syarikat <b>KBK Citra Waja</b>, jadi nama penerima bayaran ialah <b>KBK Citra Waja</b>. Tangkap layar QR ini dan imbas dari aplikasi bank anda.</p>
+     <img class="payqr" src="${APPIMG['pay-qr']}" alt="DuitNow QR KBK Citra Waja"><a class="linkbtn" href="${STAY_PAY_URL}" target="_blank" rel="noopener">Buka halaman bayaran ↗</a>
+     <p>Selepas bayar, hantar resit dalam chat WhatsApp yang sama (${esc(resv)}). Tempahan disahkan selepas resit diterima.</p>
+     <a class="wa-btn" href="${rcl}" target="_blank" rel="noopener">${WA_ICON} Hantar resit</a></div></li>
    </ol>
-   <p class="bnote">Tanpa bayaran dalam masa 2 jam, tahanan dilepaskan secara automatik. Ada soalan? WhatsApp ${esc(c.b.whatsapp||'')}.</p></div>`}
+   <p class="bnote">Tanpa bayaran dalam masa 2 jam, tempahan akan dilepaskan secara automatik. Ada soalan? WhatsApp ${esc(resv)}.</p></div>`}
 
 // booking bar inside the room photo overlay (full website)
 function bindBooking(el,k){const c=roomCtx(k),sel={ci:'',co:''};let busy=false;const q=s=>el.querySelector(s);
@@ -807,14 +824,14 @@ function bindBooking(el,k){const c=roomCtx(k),sel={ci:'',co:''};let busy=false;c
   q('#dbtn').onclick=pick;q('#dbtn2').onclick=pick;
   const upd=()=>{const n=sel.ci&&sel.co?dDiff(sel.ci,sel.co):0;
     q('#dci').textContent=sel.ci?dFmt(sel.ci):'Pilih tarikh';q('#dco').textContent=sel.co?dFmt(sel.co):'–';
-    q('#best').innerHTML=n?`${n} malam × ${rm(c.price)} = <b>${rm(c.price*n)}</b>`:'Pilih tarikh untuk lihat anggaran harga.'};
+    q('#best').innerHTML=n?`${n} malam × ${rm(c.price)} = <b>${rm(c.price*n)}</b>`+(()=>{const P=payPlan(c,sel);return P.full?' · bayaran penuh':` · deposit 50% ${rm(P.dep)}`})():'Pilih tarikh untuk lihat anggaran harga.'};
   upd();
   q('#bgo').onclick=async()=>{if(busy)return;const tt=document.getElementById('toast');if(tt)tt.hidden=true;
     if(!sel.ci||!sel.co){pick();return}
-    const nm=q('#bn').value.trim(),g=q('#bg').value;if(nm.length<2){q('#bn').focus();toast('Sila isi nama anda.');return}
-    busy=true;const btn=q('#bgo');btn.textContent='Menyemak…';const res=await placeHold(c,sel,g,nm);busy=false;btn.textContent='Tempah sekarang';
+    const f={nm:q('#bn').value.trim(),g:q('#bg').value,ph:q('#bp').value.trim()},bad=checkInfo(f);if(bad){(f.nm.length<2?q('#bn'):q('#bp')).focus();toast(bad);return}
+    busy=true;const btn=q('#bgo');btn.textContent='Menyemak…';const res=await placeHold(c,sel,f);busy=false;btn.textContent='Tempah sekarang';
     if(res.err){toast(holdErr(res.err));if(res.err==='taken'){await loadAvail(true);sel.ci=sel.co='';upd()}return}
-    q('#bookbar').innerHTML=doneHTML(c,sel,g,nm,res.hold);q('#bookbar').scrollIntoView({block:'start'})};
+    q('#bookbar').innerHTML=doneHTML(c,sel,f,res.hold);el.querySelector('.ovbox').classList.add('booked');q('#bookbar').scrollTop=0};
 }
 
 // ---- /stay : standalone booking page ----
@@ -830,16 +847,16 @@ function stayPage(){const b=BIZ.find(x=>x.biz_id==='daleena'),rooms=stayRooms();
  <ol class="order-steps"><li><b>1</b>Pilih bilik</li><li><b>2</b>Pilih tarikh kosong</li><li><b>3</b>Hantar ke WhatsApp &amp; bayar DuitNow QR</li></ol></div></section>
 <section class="order-wrap"><div class="cart-box inline stay-box" data-stay>
  <div class="cart-top">
-  <div class="cart-sum"><div><h3 style="margin:0 0 6px">Tempahan anda</h3><div class="cart-chips" data-chips><em>Pilih bilik dan tarikh di bawah</em></div></div><div class="cart-tot"><small>Jumlah</small><b data-tot>RM0</b></div></div>
+  <div class="cart-sum"><div><h3 style="margin:0 0 6px">Tempahan anda</h3><div class="cart-chips" data-chips><em>Pilih bilik dan tarikh di bawah</em></div></div><div class="cart-tot"><small>Jumlah</small><b data-tot>RM0</b><small data-paynow></small></div></div>
   <div class="cart-act"><span class="cart-err" data-err></span><button class="wa-btn" data-go type="button">${WA_ICON}<span>Tempah &amp; tahan 2 jam</span></button></div>
  </div>
  <div class="cart-list">
   <div class="sstep"><h4><span class="sn">1</span>Pilih bilik</h4>
    ${locs.map(loc=>{const L=DB.Locations.find(x=>x.loc_id===loc)||{};return `<div class="sgrp"><div class="sgrp-h">${esc(L.name||loc)}${L.google_maps_url?` · <a href="${esc(L.google_maps_url)}" target="_blank" rel="noopener">Peta ↗</a>`:''}</div>${rooms.filter(k=>k.startsWith(loc+'|')).map(roomRow).join('')}</div>`}).join('')}</div>
   <div class="sstep" id="sdates"><h4><span class="sn">2</span>Pilih tarikh</h4><div data-cal><p class="cart-note" style="margin:6px 0 0">Pilih bilik dahulu untuk melihat tarikh kosong.</p></div></div>
-  <div class="sstep" id="sinfo"><h4><span class="sn">3</span>Butiran anda</h4><div class="cart-form stay-form"><label>Nama<input data-f="name" autocomplete="name" placeholder="Nama penuh"></label><label>Tetamu<input data-f="g" type="number" min="1" value="2" inputmode="numeric"></label></div>
+  <div class="sstep" id="sinfo"><h4><span class="sn">3</span>Butiran anda</h4><div class="cart-form stay-form"><label>Nama<input data-f="name" autocomplete="name" placeholder="Nama penuh"></label><label>Tetamu<input data-f="g" type="number" min="1" value="2" inputmode="numeric"></label><label class="sp-ph">No. telefon<input data-f="ph" type="tel" autocomplete="tel" inputmode="tel" placeholder="012-345 6789"></label></div>
    <button class="wa-btn bbig sgo" data-go type="button">${WA_ICON}<span>Tempah &amp; tahan 2 jam</span></button>
-   <p class="cart-note">Bilik akan ditahan selama 2 jam. Bayar dengan DuitNow QR dan hantar resit kepada Kewangan untuk sahkan tempahan.</p></div>
+   <p class="cart-note">Bilik akan disimpan selama 2 jam untuk bayaran. Daftar masuk dalam 3 hari: bayaran penuh. Lebih 3 hari: deposit 50%, baki dibayar 3 hari sebelum daftar masuk.</p></div>
  </div></div></section>
 <p class="order-foot">Satu lagi perniagaan <a href="#home">KBK Citra Waja</a> · Lihat semua gambar di <a href="#daleena">D'Aleena Collection</a></p>`}
 function bindStay(box){const S={k:'',ci:'',co:'',mo:0};const q=s=>box.querySelector(s);let busy=false;
@@ -847,7 +864,7 @@ function bindStay(box){const S={k:'',ci:'',co:'',mo:0};const q=s=>box.querySelec
   const today=MYT(),y0=+today.slice(0,4),m0=+today.slice(5,7)-1,maxMo=Math.floor((dDiff(today,dAdd(today,CAL_DAYS)))/31)+1;
   function sum(){const n=S.ci&&S.co?dDiff(S.ci,S.co):0,c=S.k?roomCtx(S.k):null;
     q('[data-chips]').innerHTML=c?`<span>${esc(c.item)}${S.ci?` · ${dFmt(S.ci,{weekday:undefined})} → ${S.co?dFmt(S.co,{weekday:undefined}):'?'}`:''}${n?` · ${n} malam`:''}</span>`:'<em>Pilih bilik dan tarikh di bawah</em>';
-    q('[data-tot]').textContent=c&&n?rm(c.price*n):'RM0'}
+    q('[data-tot]').textContent=c&&n?rm(c.price*n):'RM0';const pn=q('[data-paynow]');if(pn){if(c&&n){const P=payPlan(c,S);pn.textContent=P.full?'Bayaran penuh':'Deposit 50%: '+rm(P.dep)}else pn.textContent=''}}
   function cal(){const box2=q('[data-cal]');if(!S.k){return}
     const c=roomCtx(S.k),mm=(m0+S.mo)%12,yy=y0+Math.floor((m0+S.mo)/12);
     box2.innerHTML=`<div class="scal-h"><button type="button" class="scal-nav" data-mv="-1"${S.mo<=0?' disabled':''} aria-label="Bulan sebelum">‹</button><b>${BM_MON[mm]} ${yy}</b><button type="button" class="scal-nav" data-mv="1"${S.mo>=maxMo?' disabled':''} aria-label="Bulan seterusnya">›</button></div>
@@ -868,10 +885,11 @@ function bindStay(box){const S={k:'',ci:'',co:'',mo:0};const q=s=>box.querySelec
   box.addEventListener('input',()=>{q('[data-err]').textContent=''});
   async function go(){if(busy)return;const err=t=>{q('[data-err]').textContent=t};
     if(!S.k){err('Sila pilih bilik.');goTo(q('.sstep'));return}if(!S.ci||!S.co){err('Sila pilih tarikh daftar masuk & keluar.');goTo(document.getElementById('sdates'));return}
-    const nm=q('[data-f=name]').value.trim(),g=q('[data-f=g]').value;if(nm.length<2){err('Sila isi nama anda.');goTo(document.getElementById('sinfo'));setTimeout(()=>q('[data-f=name]')?.focus({preventScroll:true}),400);return}
-    busy=true;const btns=box.querySelectorAll('[data-go] span');btns.forEach(x=>x.textContent='Menyemak…');const c=roomCtx(S.k),res=await placeHold(c,S,g,nm);busy=false;btns.forEach(x=>x.textContent='Tempah & tahan 2 jam');
+    const f={nm:q('[data-f=name]').value.trim(),g:q('[data-f=g]').value,ph:q('[data-f=ph]').value.trim()},bad=checkInfo(f);
+    if(bad){err(bad);goTo(document.getElementById('sinfo'));const fi=f.nm.length<2?'name':'ph';setTimeout(()=>q('[data-f='+fi+']')?.focus({preventScroll:true}),400);return}
+    busy=true;const btns=box.querySelectorAll('[data-go] span');btns.forEach(x=>x.textContent='Menyemak…');const c=roomCtx(S.k),res=await placeHold(c,S,f);busy=false;btns.forEach(x=>x.textContent='Tempah & tahan 2 jam');
     if(res.err){err(holdErr(res.err));if(res.err==='taken'){await loadAvail(true);S.ci=S.co='';sum();cal()}return}
-    box.innerHTML=`<div class="cart-done stay-done">${doneHTML(c,{ci:S.ci,co:S.co},g,nm,res.hold)}<button type="button" class="linkbtn" data-again style="justify-self:center">Buat tempahan lain</button></div>`;
+    box.innerHTML=`<div class="cart-done stay-done">${doneHTML(c,{ci:S.ci,co:S.co},f,res.hold)}<button type="button" class="linkbtn" data-again style="justify-self:center">Buat tempahan lain</button></div>`;
     box.querySelector('[data-again]').onclick=()=>render();
     window.scrollTo({top:box.getBoundingClientRect().top+scrollY-70,behavior:'smooth'})}
   loadAvail()}
@@ -894,7 +912,8 @@ function openRoom(k,viewOnly){
      <button type="button" class="dbtn" id="dbtn2"><span class="dl">Daftar keluar</span><b id="dco">–</b></button></div>
      <form class="bf b2" id="bform" onsubmit="return false">
      <label for="bg">Tetamu<input type="number" id="bg" min="1" value="2" inputmode="numeric"></label>
-     <label for="bn">Nama anda<input type="text" id="bn" placeholder="Nama penuh" autocomplete="name"></label></form>
+     <label for="bn">Nama anda<input type="text" id="bn" placeholder="Nama penuh" autocomplete="name"></label>
+     <label for="bp">No. telefon<input type="tel" id="bp" placeholder="012-345 6789" autocomplete="tel" inputmode="tel"></label></form>
      <div class="bsum"><span class="est" id="best">Pilih tarikh untuk lihat anggaran harga.</span><button type="button" class="wa-btn" id="bgo">Tempah sekarang</button></div></div></div>`;
   const show=j=>{const n=photosFor(k).length;if(!n)return;CUR.i=(j+n)%n;drawGallery()};
   el.querySelector('#ovp').onclick=()=>show(CUR.i-1);el.querySelector('#ovn').onclick=()=>show(CUR.i+1);
