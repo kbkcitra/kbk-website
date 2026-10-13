@@ -123,7 +123,7 @@ section+section{border-top:1px solid var(--line)}
 .cta-box{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:24px}
 .cta-box p{color:var(--ink-2);margin:8px 0 18px}
 
-.tbd{display:inline-block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--tbd);border:1px dashed var(--tbd);border-radius:6px;padding:1px 7px;vertical-align:middle;font-weight:600}
+.tbd{display:none;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--tbd);border:1px dashed var(--tbd);border-radius:6px;padding:1px 7px;vertical-align:middle;font-weight:600}
 
 footer{border-top:1px solid var(--line);padding-block:36px;color:var(--ink-2);font-size:14px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 .review-note{margin-top:22px;font-size:13px;color:var(--ink-2)}
@@ -421,6 +421,10 @@ body.focus .cart-box.inline .cart-top{top:61px}
 .thumbs{padding-top:14px!important}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:#EEF1F8;color:#0A1330;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body.is-admin .tbd{display:inline-block}
+.dg-badge.img{background:none;padding:0;overflow:hidden}.dg-badge.img img{width:100%;height:100%;object-fit:cover;display:block}
+.dg-apps .aico{width:22px;height:22px;border-radius:6px;vertical-align:-6px;margin-right:6px}
+[data-tk].tk-on{outline:1px dashed rgba(47,191,148,.7);outline-offset:3px;border-radius:4px;cursor:text}[data-tk].tk-on:focus{outline:2px solid var(--accent);background:rgba(47,191,148,.08)}[data-tk].tk-ed{box-shadow:inset 3px 0 0 var(--tbd)}
 </style>
 <header>
   <div class="wrap">
@@ -471,7 +475,7 @@ function home(){const nStay=DB.Locations.filter(l=>l.biz_id==='daleena'&&on(l)).
 </div></section>
 <section id="digital-teaser"><div class="dg-teaser"><div><div class="eyebrow">KBK Digital · Digital transformation</div><h2 style="margin-top:10px">The apps behind our businesses</h2>
  <p class="lead" style="margin-top:14px">Our bookings, cleaning, finance, orders and kitchen all run on two apps built in-house by our founder. Now other businesses can use them too.</p>
- <div class="dg-apps"><span><b>KBKOp</b> · operations hub</span><span><b>MaiOrder</b> · POS, kitchen &amp; costing</span></div>
+ <div class="dg-apps"><span><img class="aico" src="${APP_ICON.kbkop}" alt="" onerror="this.remove()"><b>KBKOp</b> · operations hub</span><span><img class="aico" src="${APP_ICON.maiorder}" alt="" onerror="this.remove()"><b>MaiOrder</b> · POS, kitchen &amp; costing</span></div>
  <a class="read-btn" href="#digital">Explore our apps ${ARROW}</a></div><div class="dg-pair"><figure class="shot"><img loading="lazy" src="${APPIMG['kbkop-home']}" alt="KBKOp management menu"><figcaption>KBKOp</figcaption></figure><figure class="shot"><img loading="lazy" src="${APPIMG['maiorder-start']}" alt="MaiOrder start screen"><figcaption>MaiOrder</figcaption></figure></div></div></section>
 <section id="why"><div class="eyebrow">Why one platform</div><h2 style="margin-top:10px">Everything we do, in one place</h2>
 <div class="strip"><div><h3>Real prices, always current</h3><p>Every price here comes from the same records our staff use.</p></div><div><h3>Straight to the right team</h3><p>Each business has its own WhatsApp line, so you reach the people who can help.</p></div><div><h3>Easy to find</h3><p>Every location links to Google Maps.</p></div></div></section>
@@ -592,7 +596,7 @@ function digitalPage(){const em='kbkcitrawaja91@gmail.com',wa='60197512017';
  <div class="cols3"><div class="feat"><h3>Built from real work</h3><p>Every screen exists because our own staff needed it: the booking list, the cleaning task, the kitchen ticket, the cost of a plate.</p></div>
  <div class="feat"><h3>Made for Malaysian SMEs</h3><p>Cash, transfer and online payments, bungkus orders, part-time staff and OTA bookings are built in, not bolted on.</p></div>
  <div class="feat"><h3>Owner-level insight</h3><p>Sales, cost and profit are worked out for you, by day, week and month, so decisions are based on numbers, not guesses.</p></div></div></section>
-${APPS.map(a=>`<section class="dg-app" id="app-${a.id}"><div class="dg-apphead"><div class="dg-badge">${a.name.slice(0,1)}</div><div><div class="eyebrow">${a.id==='kbkop'?'App 1 · Operations':'App 2 · Food & beverage'}</div><h2 style="margin-top:6px">${a.name}</h2><p class="dg-tag">${a.tag}</p></div></div>
+${APPS.map(a=>`<section class="dg-app" id="app-${a.id}"><div class="dg-apphead">${appBadge(a)}<div><div class="eyebrow">${a.id==='kbkop'?'App 1 · Operations':'App 2 · Food & beverage'}</div><h2 style="margin-top:6px">${a.name}</h2><p class="dg-tag">${a.tag}</p></div></div>
  <p class="lead" style="margin-top:18px;max-width:72ch">${a.intro}</p><p class="dg-who">${a.who}</p>
  <div class="dg-secs">${a.secs.map((s,i)=>`<div class="dg-sec ${i%2?'rev':''}"><div class="dg-txt"><div class="dg-n">${String(i+1).padStart(2,'0')}</div><h3>${s[0]}</h3><p>${s[1]}</p></div><div class="dg-vis">${s[2]}</div></div>`).join('')}</div>
  <div class="dg-appcta"><a class="wa-btn" href="${mail(a.name)}">Request the ${a.name} user manual</a><a class="ghost-btn" href="${waL(a.name)}" target="_blank" rel="noopener">Ask for a demo on WhatsApp</a></div></section>`).join('')}
@@ -675,6 +679,22 @@ const roomSlug=k=>{const [l,i]=k.split('|');return 'r-'+l+'-'+i.toLowerCase().re
 const docId=k=>k.replace(/[^A-Za-z0-9]+/g,'_');
 // ---- live photo edits (db) ----
 let OVR={"kodiang|G1": {"key": "kodiang|G1", "added": [], "cover": null, "removed": ["1SE7z6I1aOt50mU0SkR6ib4Er54YGdnMg", "1Agvr2tdiZI0H0578euv8Udoq4_PPjxsT"]}, "kodiang|G2": {"key": "kodiang|G2", "added": [], "cover": "1jU0fOTASa1d60gqaonP0BSBlt1eLfANa", "removed": []}, "mutiara|Mutiara Unit 288": {"key": "mutiara|Mutiara Unit 288", "added": [], "cover": "1iFSaHJDc0p9fTHUS0sJz7ifg9W8j4s_S", "removed": ["1uJ9HO0jFYr_tf5Ay-QRP6XcQuTVgofRk", "1CzbB9oj1fvpid83_5clYL5LTsYCx7v6L", "1P2NFoWhXxyln52fWM_W27rn_km2ofAus", "1YQun_rXsvAhCgrZbd3Kqm9GsE-Q5f9Pm"]}, "prima|PR1MA Unit 1132": {"key": "prima|PR1MA Unit 1132", "added": [], "cover": "1dk1yj74Fqf9kBJykThYsH2wQPW91nYtS", "removed": ["1MUoj55EzirCm4gtRZwX9-6nHoehp91xc", "1edXdXPi6wi0jvi54nzHnAXhtWtvT5QDQ", "1J1GXQBls04_hz6dimPlkzzzGvUIt-_T0", "1wpgpiCgFyTN7XZDsXdaYstzYjRMxE7Pi", "1Q6S6uDuouinoxi3k93-4F7p4iq14sRyj", "1cQWe6BLi_0JjjdOLlGSHqBoB2385dDGw", "1fNkTWIUpUfvI-584YERvkgWXeKdXAS-7", "1HnSYyO2sO4wLMikul39huvsnaWyagRqe", "1tzEqMD2rGqWt6EAeGbD_9Eid4_cJiqQ8", "1291l6pFI8cM8BjuOQYKw3kAdpZLvtsSP", "1hELFbVvmc9Jn7a1u3mGlCfBaMDHmHvtK", "1o6kkL_C5d8Q4MYxDeXMeniugBekWgprk"]}}, DBX=null, ASSETS=null, CAN_EDIT=false;
+const APP_ICON={kbkop:'https://kbkop.vercel.app/icon-512.png',maiorder:'https://mai-order.vercel.app/icon-512.png'};
+const appBadge=a=>`<div class="dg-badge img"><img src="${APP_ICON[a.id]}" alt="${esc(a.name)} logo" onerror="this.parentNode.classList.remove('img');this.replaceWith(document.createTextNode('${a.name.slice(0,1)}'))"></div>`;
+// ---- editable website text (admin): overrides keyed by page + hash of the original text ----
+let TXT={};
+const TXT_SEL='h1,h2,h3,h4,p,li,dd,dt,blockquote,figcaption,.eyebrow,.dg-tag,.lead,.dg-who,.won';
+const TXT_SKIP='a,button,label,form,nav,.cart-box,.bookbar,.cal,[data-cal],#ov,[data-room],.order-steps,.tbd,.toast,#adminbar';
+const txtHash=t=>{let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return (h>>>0).toString(36)};
+function txtTargets(){const app=document.getElementById('app');if(!app)return [];
+  return [...app.querySelectorAll(TXT_SEL)].filter(el=>{if(el.closest(TXT_SKIP))return false;
+    if([...el.children].some(c=>!/^(B|STRONG|I|EM|BR|SMALL|SPAN)$/.test(c.tagName)||c.children.length))return false;
+    if(el.querySelector(TXT_SEL))return false;return (el.dataset.orig??el.textContent).trim().length>1})}
+function applyTexts(){const page=CURID||'home';
+  txtTargets().forEach(el=>{if(el.dataset.orig==null)el.dataset.orig=el.textContent.replace(/\s+/g,' ').trim();
+    const k=page+'|'+txtHash(el.dataset.orig);el.dataset.tk=k;const t=TXT[k];
+    if(t!=null&&el.textContent!==t){el.textContent=t;el.classList.add('tk-ed')}});
+  if(window.__txtHook)window.__txtHook()}
 let ADDED_SRC=a=>'/_blob/'+a;
 const BACKEND={save:null,upload:null};
 function photosFor(k){const o=OVR[k]||{},rm=new Set(o.removed||[]);
@@ -694,7 +714,7 @@ function toast(t){let el=document.getElementById('toast');if(!el){el=document.cr
   if(db)db.collection('roomPhotos').onSnapshot(s=>{const n={};s.docs.forEach(d=>{const v=d.data();if(v&&v.key)n[v.key]=v});OVR=n;refreshViews()},()=>{});
   if(CAN_EDIT&&CUR)openRoom(CUR.k);else refreshViews();
 }catch(e){}})();
-function refreshViews(){const h=document.getElementById('homes');if(h){const b=BIZ.find(x=>x.biz_id==='daleena');h.outerHTML=homesSection(b)}if(CUR)drawGallery()}
+function refreshViews(){const h=document.getElementById('homes');if(h){const b=BIZ.find(x=>x.biz_id==='daleena');h.outerHTML=homesSection(b);applyTexts()}if(CUR)drawGallery()}
 
 function homesSection(b){
   const locs=by('Locations','daleena');
@@ -964,8 +984,7 @@ return `<a class="back" href="#home" data-goto="businesses">← All businesses</
 <section><div class="eyebrow">Why us</div><h2 style="margin-top:10px">What makes us different</h2>
 <div class="cols3">${H.map(h=>`<div class="feat"><h3>${esc(h.title)}</h3><p>${/your own words/i.test(h.text)?TBD('Your words'):esc(h.text)}</p></div>`).join('')}</div></section>
 ${id==='daleena'?homesSection(b):`<section><div class="eyebrow">${id==='matsatay'?'Menu':'Services & prices'}</div><div class="menu-head"><h2 style="margin-top:10px">${id==='matsatay'?'Our menu':'What we serve'}</h2>${CARTS[id]?`<button type="button" class="cartbtn" data-cart="${id}">🛒 Add to cart · Tempah</button>`:''}</div>
-<div class="price-groups">${priceGroups(id)}</div>
-<p class="src">Source: <b>${id==='matsatay'?'MaiOrder menu (Supabase · menu_items), live':'KBK Website Database · Prices tab'}</b></p></section>`}
+<div class="price-groups">${priceGroups(id)}</div></section>`}
 <section><div class="eyebrow">How it works</div><h2 style="margin-top:10px">How to use our service</h2>
 <ol class="steps">${S.map((s,i)=>`<li><h3>${esc(s.title)}</h3><p>${esc(s.text||'')}</p>${CARTS[id]&&i===0?`<button type="button" class="cartbtn" data-cart="${id}" style="margin-top:12px;font-size:14px;padding:8px 14px">🛒 Add to cart</button>`:''}</li>`).join('')}</ol></section>
 ${id==='daleena'?'':`<section><div class="eyebrow">Where to find us</div><h2 style="margin-top:10px">${L.length>1?'Our locations':'Location'}</h2>
@@ -978,9 +997,9 @@ ${reviewsSection(id)}
 <div class="cta-box"><h3>Ready?</h3><p>Message ${esc(b.name)} on WhatsApp with what you need.</p>${b.whatsapp?`<a class="wa-btn" href="${wa(b.whatsapp)}" target="_blank" rel="noopener">Chat on WhatsApp</a>`:TBD('WhatsApp number')} <a class="sharebtn" style="margin-left:8px" href="${shareWA(bizShare(b,id))}" target="_blank" rel="noopener">${WA_ICON}<span>Share</span></a></div></div></section>`}
 
 document.getElementById('hdrlogo').src=LOGO.kbk;
-document.getElementById('snap').textContent='Data snapshot: '+DB.snapshot;
+
 const app=document.getElementById('app');let pending=null;
-function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}CURID=id;PRETTY(rawId);const isStay=id==='stay';document.body.classList.toggle('focus',isStay);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital'||id==='order'||isStay;const isOrder=id==='order';app.innerHTML=isStay?stayPage():isOrder?orderPage('matsatay'):id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();if(isOrder){const bx=document.querySelector('.cart-box.inline');if(bx)bindCart(bx)}if(isStay){const bx=document.querySelector('[data-stay]');if(bx)bindStay(bx)}document.title=(isStay?"Tempah D'Aleena Collection · ":isOrder?'Tempah Mat Satay Kodiang · ':id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';
+function render(){const ovEl=document.getElementById('ov');if(ovEl&&!ovEl.hidden){ovEl.hidden=true;ovEl.innerHTML='';document.body.style.overflow=''}let id=location.hash.slice(1)||ROUTE_PATH();const rawId=id;let deepRoom=null;if(id.startsWith('r-')){deepRoom=Object.keys(DB.RoomPhotos).find(k=>roomSlug(k)===id);id='daleena'}CURID=id;PRETTY(rawId);const isStay=id==='stay';document.body.classList.toggle('focus',isStay);const b=BIZ.find(x=>x.biz_id===id);const isStory=id==='story'||id==='digital'||id==='order'||isStay;const isOrder=id==='order';app.innerHTML=isStay?stayPage():isOrder?orderPage('matsatay'):id==='story'?storyPage():id==='digital'?digitalPage():b?ent(id):home();if(isOrder){const bx=document.querySelector('.cart-box.inline');if(bx)bindCart(bx)}if(isStay){const bx=document.querySelector('[data-stay]');if(bx)bindStay(bx)}document.title=(isStay?"Tempah D'Aleena Collection · ":isOrder?'Tempah Mat Satay Kodiang · ':id==='story'?'Our Story · ':id==='digital'?'KBK Digital · ':b?b.name+' · ':'')+'KBK Citra Waja';applyTexts();
  if(deepRoom){const r=document.querySelector(`[data-room="${deepRoom}"]`);if(r){r.scrollIntoView({block:'center'});OV=r;openRoom(deepRoom)}return}
  if(pending&&!b&&!isStory){const el=document.getElementById(pending);pending=null;if(el){el.scrollIntoView();return}}window.scrollTo(0,0)}
 document.addEventListener('click',e=>{const c=e.target.closest('[data-cart]');if(c){openCart(c.dataset.cart);return}});
@@ -997,18 +1016,33 @@ addEventListener('hashchange',render);render();
 const SB_URL='https://yztfmdrodxgmamamhshf.supabase.co', SB_KEY='sb_publishable_cywx6nLhT1MLMiYV_Dmrnw_K5R0Ycdq';
 const STORE=SB_URL+'/storage/v1/object/public/website/';
 ADDED_SRC=a=>STORE+a;
-let SB=null;
+let SB=null,TXT_EDIT=false;
+async function loadTexts(){try{const r=await fetch(SB_URL+'/rest/v1/web_texts?select=key,text',{headers:{apikey:SB_KEY}});if(!r.ok)return;const rows=await r.json();const n={};rows.forEach(v=>{n[v.key]=v.text});TXT=n;applyTexts()}catch(e){}}
+function txtOn(){document.querySelectorAll('#app [data-tk]').forEach(el=>{if(el.classList.contains('tk-on'))return;el.classList.add('tk-on');
+  try{el.contentEditable='plaintext-only'}catch(e){el.contentEditable='true'}if(el.contentEditable!=='plaintext-only')el.contentEditable='true';
+  el.spellcheck=true;el.addEventListener('keydown',txtKey);el.addEventListener('blur',txtSave)})}
+function txtOff(){document.querySelectorAll('#app [data-tk].tk-on').forEach(el=>{el.classList.remove('tk-on');el.removeAttribute('contenteditable');el.removeEventListener('keydown',txtKey);el.removeEventListener('blur',txtSave)})}
+function txtKey(e){if(e.key==='Escape'){const el=e.currentTarget;el.textContent=TXT[el.dataset.tk]??el.dataset.orig;el.blur()}else if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();e.currentTarget.blur()}}
+async function txtSave(e){const el=e.currentTarget,k=el.dataset.tk,orig=el.dataset.orig,cur=TXT[k]??orig;let t=el.innerText.replace(/\u00a0/g,' ').replace(/[ \t]+/g,' ').trim();
+  if(!t){t=orig;el.textContent=orig}
+  if(t===cur)return;const sb=await client();
+  try{if(t===orig){const {error}=await sb.from('web_texts').delete().eq('key',k);if(error)throw error;delete TXT[k];el.classList.remove('tk-ed');toast('Original text restored')}
+    else{const {error}=await sb.from('web_texts').upsert({key:k,page:k.split('|')[0],original:orig,text:t,updated_at:new Date().toISOString()});if(error)throw error;TXT[k]=t;el.classList.add('tk-ed');toast('Text saved · live for everyone')}}
+  catch(x){toast('Could not save: '+(x.message||x.code));el.textContent=cur}}
+window.__txtHook=()=>{if(TXT_EDIT)txtOn()};
 async function loadOvr(){try{const r=await fetch(SB_URL+'/rest/v1/web_room_photos?select=key,removed,added,cover',{headers:{apikey:SB_KEY}});if(!r.ok)return;const rows=await r.json();const n={};rows.forEach(v=>{n[v.key]={removed:v.removed||[],added:v.added||[],cover:v.cover}});OVR=n;refreshViews()}catch(e){}}
 function loadLib(){return window.supabase?Promise.resolve():new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';s.onload=res;s.onerror=()=>rej(new Error('Could not load login library'));document.head.appendChild(s)})}
 async function client(){await loadLib();if(!SB)SB=window.supabase.createClient(SB_URL,SB_KEY);return SB}
 async function becomeAdmin(){const sb=await client();const {data,error}=await sb.rpc('is_web_admin');if(error||data!==true)return false;
-  CAN_EDIT=true;
+  CAN_EDIT=true;document.body.classList.add('is-admin');
   BACKEND.save=async(k,o)=>{const {error}=await sb.from('web_room_photos').upsert({key:k,removed:o.removed||[],added:o.added||[],cover:o.cover||null,updated_at:new Date().toISOString()});if(error)throw error};
   BACKEND.upload=async blob=>{const id=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));const p='rooms/'+id+'.webp';const {error}=await sb.storage.from('website').upload(p,blob,{contentType:'image/webp',cacheControl:'31536000',upsert:false});if(error)throw error;return p};
   bar();await loadOvr();if(CUR)openRoom(CUR.k);return true}
 function bar(){let b=document.getElementById('adminbar');if(!b){b=document.createElement('div');b.id='adminbar';document.body.appendChild(b)}
-  b.innerHTML='<span>● Admin mode</span><a href="#daleena">Edit D’Aleena photos</a><button type="button" id="adminout">Sign out</button>';
-  b.querySelector('#adminout').onclick=async()=>{try{await (await client()).auth.signOut()}catch(e){}CAN_EDIT=false;BACKEND.save=null;BACKEND.upload=null;b.remove();if(CUR)openRoom(CUR.k);toast('Signed out')}}
+  b.innerHTML='<span>● Admin mode</span><button type="button" id="admintxt">Edit text</button><a href="#daleena">Edit D’Aleena photos</a><button type="button" id="adminout">Sign out</button>';
+  const tb=b.querySelector('#admintxt');const setTxt=on=>{TXT_EDIT=on;tb.classList.toggle('on',on);tb.textContent=on?'Done editing text':'Edit text';if(on){txtOn();toast('Tap any highlighted text to edit. Enter = save, Esc = cancel. Clear the text to restore the original.')}else txtOff()};
+  tb.onclick=()=>setTxt(!TXT_EDIT);
+  b.querySelector('#adminout').onclick=async()=>{try{await (await client()).auth.signOut()}catch(e){}setTxt(false);CAN_EDIT=false;document.body.classList.remove('is-admin');BACKEND.save=null;BACKEND.upload=null;b.remove();if(CUR)openRoom(CUR.k);toast('Signed out')}}
 function openLogin(){let m=document.getElementById('adminlogin');if(m){m.hidden=false;return}
   m=document.createElement('div');m.id='adminlogin';m.innerHTML=`<form class="albox" autocomplete="on"><h3>Admin sign in</h3><p>For KBK Citra Waja staff only.</p>
    <label>Email<input type="email" name="email" autocomplete="username" required></label>
@@ -1019,11 +1053,11 @@ function openLogin(){let m=document.getElementById('adminlogin');if(m){m.hidden=
   f.onsubmit=async e=>{e.preventDefault();er.hidden=true;const btn=f.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Signing in…';
     try{const sb=await client();const {error}=await sb.auth.signInWithPassword({email:f.email.value.trim(),password:f.password.value});
       if(error)throw error;if(!(await becomeAdmin())){await sb.auth.signOut();throw new Error('This account is not a website admin.')}
-      m.hidden=true;f.reset();toast('Signed in. Open any room and tap Edit photos.')}
+      m.hidden=true;f.reset();toast('Signed in. Use Edit text in the admin bar, or open a room to edit photos.')}
     catch(x){er.textContent=x.message||'Sign-in failed';er.hidden=false}finally{btn.disabled=false;btn.textContent='Sign in'}}}
 window.openAdminLogin=openLogin;
 const st=document.createElement('style');st.textContent=`#adminbar{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:70;display:flex;gap:12px;align-items:center;background:#0F1B40;border:1px solid var(--accent);color:var(--ink);padding:8px 14px;border-radius:999px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-#adminbar span{color:var(--accent);font-weight:600}#adminbar a{color:var(--ink)}#adminbar button{background:none;border:1px solid var(--line);color:var(--ink-2);border-radius:999px;padding:4px 10px;cursor:pointer}
+#adminbar span{color:var(--accent);font-weight:600}#adminbar a{color:var(--ink)}#adminbar button{background:none;border:1px solid var(--line);color:var(--ink-2);border-radius:999px;padding:4px 10px;cursor:pointer}#adminbar #admintxt{color:var(--ink);border-color:var(--accent)}#adminbar #admintxt.on{background:var(--accent);color:#06231B}
 #adminlogin[hidden]{display:none}
 #adminlogin{position:fixed;inset:0;z-index:80;background:rgba(5,10,28,.75);display:grid;place-items:center;padding:16px}
 .albox{width:min(380px,100%);background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:grid;gap:12px}
@@ -1032,7 +1066,7 @@ const st=document.createElement('style');st.textContent=`#adminbar{position:fixe
 .alerr{color:#FF9B9B;font-size:13.5px}.alact{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}.alact .alx{background:none;border:1px solid var(--line);color:var(--ink-2);border-radius:10px;padding:8px 14px;cursor:pointer}
 .adminlink{background:none;border:0;color:var(--ink-2);opacity:.55;font:inherit;font-size:12px;cursor:pointer;padding:0;margin-left:12px}`;document.head.appendChild(st);
 const foot=document.querySelector('footer span');if(foot){const a=document.createElement('button');a.type='button';a.className='adminlink';a.textContent='Admin';a.onclick=openLogin;foot.appendChild(a)}
-loadOvr();
+loadOvr();loadTexts();
 if(location.hash==='#admin'){history.replaceState(null,'','#home');render();openLogin()}
 try{if(Object.keys(localStorage).some(x=>/^sb-.*-auth-token$/.test(x)))client().then(async sb=>{const {data}=await sb.auth.getSession();if(data&&data.session)becomeAdmin()}).catch(()=>{})}catch(e){}
 })();
