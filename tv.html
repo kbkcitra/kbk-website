@@ -203,6 +203,20 @@ select{font:inherit;font-size:1.05rem;text-transform:none;letter-spacing:0;color
 select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 .save{font-family:var(--display);font-weight:600;font-size:1.05rem;background:var(--teal);color:#06231A;border:0;border-radius:11px;padding:14px;cursor:pointer}
 .save:hover{background:#43d4a8}
+.fsrow{display:flex;align-items:center;gap:12px;justify-content:space-between;
+  border:1px solid var(--line);border-radius:11px;padding:11px 14px}
+.fsrow>span{font-size:.76rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:600}
+.dots{display:flex;gap:11px;justify-content:center;padding:4px 0 2px}
+.dots i{width:13px;height:13px;border-radius:50%;border:2px solid var(--line);background:transparent}
+.dots i.on{background:var(--teal);border-color:var(--teal)}
+.dots.bad i{border-color:#E06A6A}
+.dots.bad{animation:shake .32s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pad button{font:inherit;font-family:var(--display);font-weight:600;font-size:1.3rem;cursor:pointer;
+  color:var(--fg);background:var(--navy);border:1px solid var(--line);border-radius:11px;padding:13px 0}
+.pad button:hover{border-color:var(--teal);color:var(--teal)}
+.pad button:focus{outline:3px solid var(--teal);outline-offset:2px}
 
 @media (max-width:640px){
  html,body{overflow:auto}
@@ -228,6 +242,7 @@ select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:2
       <button type="button" data-nav data-lang="ms" aria-pressed="true">BM</button>
       <button type="button" data-nav data-lang="en" aria-pressed="false">ENG</button>
     </div>
+    <button class="setup-btn key" id="tvBtn" type="button" data-nav></button>
     <div class="prop" id="propName"></div>
     <div class="clock" id="clock">--:--</div>
   </header>
@@ -241,8 +256,6 @@ select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:2
     <span class="dot">&bull;</span>
     <span id="footHelp"></span>
     <span class="fbtns">
-      <button class="setup-btn" id="fsBtn" type="button"></button>
-      <button class="setup-btn key" id="tvBtn" type="button"></button>
       <button class="setup-btn" id="openSetup" type="button"></button>
     </span>
   </div>
@@ -256,13 +269,25 @@ select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:2
   </div>
 </div>
 
+<div class="setup" id="codeBox" hidden>
+  <div class="setup-card">
+    <h2 id="codeTitle"></h2>
+    <p id="codeLead"></p>
+    <div class="dots" id="codeDots"><i></i><i></i><i></i></div>
+    <div class="pad" id="codePad"></div>
+    <button class="setup-btn" id="codeCancel" type="button"></button>
+  </div>
+</div>
+
 <div class="setup" id="setup" hidden>
   <div class="setup-card">
     <h2 id="setupTitle"></h2>
     <p id="setupLead"></p>
     <label for="selProp"><span id="lblProp"></span><select id="selProp"></select></label>
     <label for="selRoom"><span id="lblRoom"></span><select id="selRoom"></select></label>
+    <div class="fsrow"><span id="lblFs"></span><button class="setup-btn" id="fsBtn" type="button"></button></div>
     <button class="save" id="saveSetup" type="button"></button>
+    <button class="setup-btn" id="closeSetup" type="button"></button>
   </div>
 </div>
 
@@ -297,8 +322,18 @@ var UI={
  tvTitle:{ms:"Menonton siaran TV",en:"Watching TV channels"},
  tvLead:{ms:"Tekan butang <b>SOURCE</b> atau <b>INPUT</b> pada alat kawalan TV untuk bertukar ke siaran TV atau dekoder.",
          en:"Press <b>SOURCE</b> or <b>INPUT</b> on the TV remote to switch over to TV channels or your decoder."},
- tvBack:{ms:"Kembali ke skrin bilik",en:"Back to the room screen"}
+ tvBack:{ms:"Kembali ke skrin bilik",en:"Back to the room screen"},
+ settings:{ms:"Tetapan",en:"Settings"},
+ codeTitle:{ms:"Tetapan bilik",en:"Room settings"},
+ codeLead:{ms:"Masukkan kod admin untuk membuka tetapan.",en:"Enter the admin code to open settings."},
+ codeBad:{ms:"Kod salah. Cuba lagi.",en:"Wrong code. Try again."},
+ cancel:{ms:"Batal",en:"Cancel"},
+ close:{ms:"Tutup",en:"Close"},
+ lblFs:{ms:"Skrin penuh",en:"Full screen"},
+ fsNow:{ms:"Hidupkan",en:"Turn on"},
+ fsOffNow:{ms:"Matikan",en:"Turn off"}
 };
+var ADMIN_CODE="007";
 
 var BAN=[
  {ms:"Dilarang merokok di dalam rumah.",en:"No smoking inside the house.",no:1},
@@ -361,7 +396,7 @@ var HOMES=[
   en:"Whole unit \u00b7 3 bedrooms \u00b7 3 queen beds \u00b7 2 bathrooms \u00b7 6 guests \u00b7 washing machine \u00b7 upstairs balcony"}}
 ];
 var UI_HERE={ms:"Anda di sini",en:"You are here"},UI_NIGHT={ms:"/ malam",en:"/ night"};
-function roomPhoto(prop,room){return ROOMIMG[prop+"|"+room]||"";}
+function roomPhoto(prop,type){return ROOMIMG[prop+"|"+type]||"";}
 
 function wifiQR(w){return {t:"qr",url:"WIFI:T:WPA;S:"+w.ssid.replace(/([\;,:"])/g,"\\$1")+";P:"+w.pass.replace(/([\;,:"])/g,"\\$1")+";;",
  label:{ms:"Imbas untuk sambung terus",en:"Scan to connect"},
@@ -438,7 +473,10 @@ var PROPS={
   natLine:{ms:"Setiap Sabtu pagi, pasar Nat Kodiang berniaga betul-betul di hadapan pintu bilik anda. Makanan panas, buah dan kuih, pakaian, mainan, malah urut tapak kaki \u2014 semuanya beberapa langkah sahaja.",
            en:"Every Saturday morning the Nat Kodiang market sets up right outside your room door. Hot food, fruit and cakes, clothes, toys, even a foot massage \u2014 all a few steps away."},
   wifi:{ssid:"D'Aleena Inn",pass:"Aku_918005"},
-  rooms:["Double","Deluxe Double","Twin","Family","Deluxe Family"],
+  unit:{ms:"Bilik",en:"Room"},
+  rooms:[{n:"1",t:"Deluxe Double"},{n:"2",t:"Twin"},{n:"3",t:"Deluxe Family"},
+         {n:"4",t:"Double"},{n:"5",t:"Double"},{n:"6",t:"Double"},{n:"7",t:"Double"},
+         {n:"8",t:"Double"},{n:"9",t:"Family"}],
   parkTile:{ms:"Parking Sabtu",en:"Saturday parking"},
   parkTitle:{ms:"Parking hari Sabtu \u2014 sila alih kereta",en:"Saturday parking \u2014 please move your car"},
   parkHot:true,
@@ -466,11 +504,12 @@ var PROPS={
   natLine:{ms:"Setiap Sabtu pagi, pasar Nat Kodiang berniaga di pekan Kodiang berhampiran. Makanan panas, buah dan kuih, pakaian, mainan, malah urut tapak kaki \u2014 berbaloi untuk bangun awal.",
            en:"Every Saturday morning the Nat Kodiang market fills the nearby town centre. Hot food, fruit and cakes, clothes, toys, even a foot massage \u2014 worth getting up early for."},
   wifi:{ssid:"kikumohdafif",pass:"Aku_918005"},
-  rooms:["G1","G2"]
+  unit:{ms:"Bilik",en:"Room"},
+  rooms:[{n:"1",t:"G1"},{n:"2",t:"G2"}]
  },
  prima:{
   name:"D'Aleena Homes PR1MA, Sungai Petani",shortName:"PR1MA Sungai Petani",kodiang:false,late:LATE_SP,care:true,
-  wifi:{ssid:"kikumohdafif",pass:"Aku_918005"},rooms:["PR1MA Unit 1132"],
+  wifi:{ssid:"kikumohdafif",pass:"Aku_918005"},hideNo:true,rooms:[{n:"1132",t:"PR1MA Unit 1132"}],
   parkTile:{ms:"Parking",en:"Parking"},parkTitle:{ms:"Panduan parking",en:"Parking guide"},
   parking:[
    {t:"list",items:[
@@ -482,7 +521,7 @@ var PROPS={
  },
  mutiara:{
   name:"D'Aleena Homes Mutiara, Sungai Petani",shortName:"Mutiara Sungai Petani",kodiang:false,late:LATE_SP,care:true,
-  wifi:{ssid:"Huawei-B310-16DB",pass:"22295165"},rooms:["Mutiara Unit 288"],
+  wifi:{ssid:"Huawei-B310-16DB",pass:"22295165"},hideNo:true,rooms:[{n:"288",t:"Mutiara Unit 288"}],
   parkTile:{ms:"Parking",en:"Parking"},parkTitle:{ms:"Panduan parking",en:"Parking guide"},
   parking:[
    {t:"list",items:[
@@ -498,7 +537,20 @@ var PROPS={
 };
 
 /* ---------- state ---------- */
-var KEY="daleena-tv-room",LKEY="daleena-tv-lang",SECS=[],CUR=0,PROP=null,ROOM=null;
+var KEY="daleena-tv-room",LKEY="daleena-tv-lang",SECS=[],CUR=0,PROP=null,ROOM=null,ROOMT=null;
+function roomRec(prop,no){
+ var rs=(PROPS[prop]||{}).rooms||[];
+ for(var i=0;i<rs.length;i++)if(rs[i].n===String(no))return rs[i];
+ return rs[0]||{n:"",t:""};
+}
+function roomLine(prop,no){
+ var p=PROPS[prop];if(!p)return "";
+ return p.hideNo?p.name:(T(p.unit)+" "+no+" \u00b7 "+p.name);
+}
+function roomLabel(prop,r){
+ var p=PROPS[prop];
+ return p.hideNo?r.t:(T(p.unit)+" "+r.n+" \u2014 "+r.t);
+}
 function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){}return null;}
 
 function qrInto(el,text){
@@ -519,7 +571,7 @@ function blockHTML(b){
  if(b.t==="figs")return '<div class="d-figs">'+b.items.map(function(i){
    return '<figure class="tall"><img src="'+(IMG[i.k]||"")+'" alt="'+T(i.h)+'"><figcaption><b>'+T(i.h)+'</b>'+T(i.c)+'</figcaption></figure>';}).join("")+'</div>';
  if(b.t==="homes")return '<div class="d-homes">'+HOMES.map(function(h){
-   var here=(h.prop===PROP&&h.room===ROOM);
+   var here=(h.prop===PROP&&h.room===ROOMT);
    return '<article class="home'+(here?" here":"")+'">'
         + (here?'<span class="hhere">'+T(UI_HERE)+'</span>':'')
         + '<img src="'+roomPhoto(h.prop,h.room)+'" alt="'+h.room+'" loading="lazy">'
@@ -543,8 +595,8 @@ function showSection(i){
  if(s.home){
   html='<div class="wrap welcome">'
      + '<p class="eyebrow">'+T(UI.welcome)+'</p>'
-     + '<h1>'+ROOM+'</h1>'
-     + '<p class="where">'+PROPS[PROP].name+'</p>'
+     + '<h1>'+ROOMT+'</h1>'
+     + '<p class="where">'+roomLine(PROP,ROOM)+'</p>'
      + '<p class="sub">'+T(UI.heroSub)+'</p></div>';
  }else{
   html='<div class="wrap"><h2 class="ptitle">'+T(s.title)+'</h2>'+s.blocks.map(blockHTML).join("")+'</div>';
@@ -560,20 +612,25 @@ function showSection(i){
  markAuto();
 }
 function setBackdrop(){
- var src=roomPhoto(PROP,ROOM),el=document.getElementById("bgPhoto"),fall=document.getElementById("bgFall");
+ var src=roomPhoto(PROP,ROOMT),el=document.getElementById("bgPhoto"),fall=document.getElementById("bgFall");
  if(!src){el.classList.remove("on");el.style.backgroundImage="";fall.hidden=false;return;}
  el.style.backgroundImage='url("'+src+'")';el.classList.add("on");fall.hidden=true;
 }
 function paintUI(){
  document.getElementById("footHelp").textContent=T(UI.foot);
- document.getElementById("openSetup").textContent=T(UI.change);
+ document.getElementById("openSetup").textContent=T(UI.settings);
  document.getElementById("setupTitle").textContent=T(UI.setupTitle);
  document.getElementById("setupLead").textContent=T(UI.setupLead);
  document.getElementById("lblProp").textContent=T(UI.lblProp);
  document.getElementById("lblRoom").textContent=T(UI.lblRoom);
  document.getElementById("saveSetup").textContent=T(UI.save);
- document.getElementById("fsBtn").textContent=T(fsOn()?UI.fsOff:UI.fsOn);
+ document.getElementById("fsBtn").textContent=T(fsOn()?UI.fsOffNow:UI.fsNow);
+ document.getElementById("lblFs").textContent=T(UI.lblFs);
  document.getElementById("tvBtn").textContent=T(UI.tv);
+ document.getElementById("closeSetup").textContent=T(UI.close);
+ document.getElementById("codeTitle").textContent=T(UI.codeTitle);
+ document.getElementById("codeLead").textContent=T(UI.codeLead);
+ document.getElementById("codeCancel").textContent=T(UI.cancel);
  document.getElementById("tvoffTitle").textContent=T(UI.tvTitle);
  document.getElementById("tvoffLead").innerHTML=T(UI.tvLead);
  document.getElementById("tvBack").textContent=T(UI.tvBack);
@@ -582,7 +639,7 @@ function paintUI(){
 }
 function render(key,room,keepIndex){
  var p=PROPS[key];if(!p)return;
- PROP=key;ROOM=room;
+ PROP=key;ROOM=String(room);ROOMT=roomRec(key,ROOM).t;
  document.getElementById("propName").textContent=p.name;
  SECS=sections(p);
  paintUI();setBackdrop();
@@ -609,6 +666,7 @@ document.getElementById("rail").addEventListener("click",function(e){
 function rail(){return Array.prototype.slice.call(document.querySelectorAll("#rail .rcard"));}
 document.addEventListener("keydown",function(e){
  if(!document.getElementById("setup").hidden)return;
+ if(!document.getElementById("codeBox").hidden)return;
  if(!document.getElementById("tvoff").hidden)return;
  var k=e.key,stage=document.getElementById("stage"),inLang=document.activeElement&&document.activeElement.closest("#langBar");
  if(k==="ArrowRight"||k==="ArrowLeft"){
@@ -642,7 +700,9 @@ function fillRooms(){
  if(!sel)return;
  var keep=sel.value;
  sel.innerHTML="";
- (p?p.rooms:[]).forEach(function(r){var o=document.createElement("option");o.value=r;o.textContent=r;sel.appendChild(o);});
+ var pk=document.getElementById("selProp").value;
+ (p?p.rooms:[]).forEach(function(r){
+  var o=document.createElement("option");o.value=r.n;o.textContent=roomLabel(pk,r);sel.appendChild(o);});
  if(keep)sel.value=keep;
 }
 function openSetup(){
@@ -653,9 +713,49 @@ function openSetup(){
  fillRooms();
  if(saved[1])document.getElementById("selRoom").value=saved[1];
  document.getElementById("setup").hidden=false;
+ document.getElementById("selProp").focus();
 }
+var codeBuf="";
+function paintDots(bad){
+ var d=document.getElementById("codeDots");
+ d.classList.toggle("bad",!!bad);
+ Array.prototype.forEach.call(d.children,function(i,n){i.classList.toggle("on",n<codeBuf.length);});
+}
+function codeKey(ch){
+ if(ch==="back"){codeBuf=codeBuf.slice(0,-1);paintDots(false);return;}
+ if(codeBuf.length>=ADMIN_CODE.length)return;
+ codeBuf+=ch;paintDots(false);
+ if(codeBuf.length===ADMIN_CODE.length){
+  if(codeBuf===ADMIN_CODE){closeCode();openSetup();}
+  else{paintDots(true);document.getElementById("codeLead").textContent=T(UI.codeBad);
+       setTimeout(function(){codeBuf="";paintDots(false);},420);}
+ }
+}
+function openCode(){
+ codeBuf="";paintDots(false);
+ document.getElementById("codeLead").textContent=T(UI.codeLead);
+ var pad=document.getElementById("codePad");
+ pad.innerHTML=["1","2","3","4","5","6","7","8","9","","0","back"].map(function(k){
+  return k===""?"<span></span>":'<button type="button" data-k="'+k+'">'+(k==="back"?"\u232b":k)+"</button>";}).join("");
+ document.getElementById("codeBox").hidden=false;
+ var f=pad.querySelector("button");if(f)f.focus();
+}
+function closeCode(){document.getElementById("codeBox").hidden=true;codeBuf="";}
+document.getElementById("codePad").addEventListener("click",function(e){
+ var b=e.target.closest("[data-k]");if(b)codeKey(b.getAttribute("data-k"));
+});
+document.getElementById("codeCancel").addEventListener("click",closeCode);
+document.addEventListener("keydown",function(e){
+ if(document.getElementById("codeBox").hidden)return;
+ if(/^[0-9]$/.test(e.key)){e.preventDefault();codeKey(e.key);}
+ else if(e.key==="Backspace"){e.preventDefault();codeKey("back");}
+ else if(e.key==="Escape"){e.preventDefault();closeCode();}
+},true);
 document.getElementById("selProp").addEventListener("change",fillRooms);
-document.getElementById("openSetup").addEventListener("click",openSetup);
+document.getElementById("openSetup").addEventListener("click",openCode);
+document.getElementById("closeSetup").addEventListener("click",function(){
+ document.getElementById("setup").hidden=true;autoStart();
+});
 document.getElementById("saveSetup").addEventListener("click",function(){
  var k=document.getElementById("selProp").value,r=document.getElementById("selRoom").value;
  store(KEY,k+"|"+r);document.getElementById("setup").hidden=true;CUR=0;render(k,r);autoStart();
@@ -699,7 +799,7 @@ function toggleFS(){
   else{var e=document.documentElement;(e.requestFullscreen||e.webkitRequestFullscreen||function(){}).call(e);}
  }catch(err){}
 }
-function fsLabel(){document.getElementById("fsBtn").textContent=T(fsOn()?UI.fsOff:UI.fsOn);}
+function fsLabel(){document.getElementById("fsBtn").textContent=T(fsOn()?UI.fsOffNow:UI.fsNow);}
 document.addEventListener("fullscreenchange",fsLabel);
 document.addEventListener("webkitfullscreenchange",fsLabel);
 document.getElementById("fsBtn").addEventListener("click",toggleFS);
@@ -726,7 +826,7 @@ tick();setInterval(tick,20000);
  var l=store(LKEY);if(l==="en"||l==="ms")LANG=l;
  var saved=(store(KEY)||"").split("|");
  if(saved[0]&&PROPS[saved[0]]&&saved[1]){render(saved[0],saved[1]);autoStart();}
- else{render("inn","Deluxe Family");openSetup();}
+ else{render("inn","1");openSetup();}
 })();
 </script>
 
