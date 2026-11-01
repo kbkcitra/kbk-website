@@ -85,6 +85,10 @@ body{margin:0;background:var(--navy);color:var(--fg);font-family:var(--body);
 .welcome h1{margin:0;font-family:var(--display);font-weight:700;line-height:1;text-wrap:balance;
   font-size:clamp(2.2rem,6.6vw,5.4rem);text-shadow:0 2px 30px rgba(10,19,48,.65)}
 .welcome .where{margin:.1em 0 0;font-family:var(--display);font-weight:600;color:var(--fg);opacity:.9;font-size:clamp(1rem,2vw,1.7rem)}
+.stay{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}
+.stay div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 14px;backdrop-filter:blur(13px)}
+.stay .k{margin-bottom:3px}
+.stay b{font-family:var(--display);font-weight:600;font-size:clamp(.98rem,1.6vw,1.45rem);line-height:1.15;display:block}
 .welcome .sub{margin:.5em 0 0;color:var(--muted);font-size:clamp(.86rem,1.25vw,1.15rem);max-width:56ch;line-height:1.55}
 
 /* panel content */
@@ -323,6 +327,12 @@ var UI={
  tvLead:{ms:"Tekan butang <b>SOURCE</b> atau <b>INPUT</b> pada alat kawalan TV untuk bertukar ke siaran TV atau dekoder.",
          en:"Press <b>SOURCE</b> or <b>INPUT</b> on the TV remote to switch over to TV channels or your decoder."},
  tvBack:{ms:"Kembali ke skrin bilik",en:"Back to the room screen"},
+ hi:{ms:"Selamat datang",en:"Welcome"},
+ kIn:{ms:"Daftar masuk",en:"Checked in"},
+ kOut:{ms:"Daftar keluar",en:"Checking out"},
+ kNights:{ms:"Tempoh menginap",en:"Length of stay"},
+ night1:{ms:"1 malam",en:"1 night"},
+ nightN:{ms:"{n} malam",en:"{n} nights"},
  settings:{ms:"Tetapan",en:"Settings"},
  codeTitle:{ms:"Tetapan bilik",en:"Room settings"},
  codeLead:{ms:"Masukkan kod admin untuk membuka tetapan.",en:"Enter the admin code to open settings."},
@@ -423,7 +433,7 @@ function sections(p){
   .concat([{t:"note",v:{ms:"<b>Perhatian.</b> Ketidakpatuhan kepada peraturan ini boleh menyebabkan tindakan sewajarnya diambil.",
                         en:"<b>Please note.</b> Failure to comply with these rules may result in appropriate action being taken."}}])});
 
- if(p.parking) s.push({tile:p.parkTile,title:p.parkTitle,blocks:p.parking,hot:p.parkHot});
+ if(p.parking) s.push({tile:p.parkTile,title:p.parkTitle,blocks:p.parking,hot:p.parkHot,park:p.parkHot?1:0});
 
  if(p.nat) s.push({tile:{ms:"Nat Kodiang",en:"Nat Kodiang"},
   title:{ms:"Nat Kodiang \u2014 setiap Sabtu",en:"Nat Kodiang \u2014 every Saturday"},blocks:[
@@ -593,10 +603,20 @@ function showSection(i){
  CUR=i;
  var stage=document.getElementById("stage"),html;
  if(s.home){
+  var g=GUEST,stay="";
+  if(g&&g.check_in&&g.check_out){
+   var nn=nightsBetween(g.check_in,g.check_out),
+       nt=nn===1?T(UI.night1):T(UI.nightN).replace("{n}",nn);
+   stay='<div class="stay">'
+      + '<div><span class="k">'+T(UI.kIn)+'</span><b>'+fmtDay(g.check_in)+'</b></div>'
+      + '<div><span class="k">'+T(UI.kOut)+'</span><b>'+fmtDay(g.check_out)+'</b></div>'
+      + '<div><span class="k">'+T(UI.kNights)+'</span><b>'+nt+'</b></div></div>';
+  }
   html='<div class="wrap welcome">'
      + '<p class="eyebrow">'+T(UI.welcome)+'</p>'
-     + '<h1>'+ROOMT+'</h1>'
-     + '<p class="where">'+roomLine(PROP,ROOM)+'</p>'
+     + '<h1>'+(g&&g.guest_name?T(UI.hi)+", "+g.guest_name:ROOMT)+'</h1>'
+     + '<p class="where">'+(g&&g.guest_name?ROOMT+" \u00b7 "+roomLine(PROP,ROOM):roomLine(PROP,ROOM))+'</p>'
+     + stay
      + '<p class="sub">'+T(UI.heroSub)+'</p></div>';
  }else{
   html='<div class="wrap"><h2 class="ptitle">'+T(s.title)+'</h2>'+s.blocks.map(blockHTML).join("")+'</div>';
@@ -758,8 +778,62 @@ document.getElementById("closeSetup").addEventListener("click",function(){
 });
 document.getElementById("saveSetup").addEventListener("click",function(){
  var k=document.getElementById("selProp").value,r=document.getElementById("selRoom").value;
- store(KEY,k+"|"+r);document.getElementById("setup").hidden=true;CUR=0;render(k,r);autoStart();
+ store(KEY,k+"|"+r);document.getElementById("setup").hidden=true;CUR=0;GUEST=null;render(k,r);
+ showSection(homeIndex());autoStart();fetchGuest();scheduleGuest();
 });
+
+/* ---------- Malaysia wall clock ---------- */
+function myParts(){
+ var d=new Date();
+ try{
+  var f=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kuala_Lumpur",weekday:"short",hour:"2-digit",minute:"2-digit",hour12:false}),
+      o={};f.formatToParts(d).forEach(function(x){o[x.type]=x.value;});
+  var days={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+  return {dow:days[o.weekday],h:parseInt(o.hour,10),m:parseInt(o.minute,10)};
+ }catch(e){return {dow:d.getDay(),h:d.getHours(),m:d.getMinutes()};}
+}
+/* Friday 2pm until Saturday noon - the window the parking notice covers */
+function parkWindow(){
+ var t=myParts();
+ if(t.dow===5&&t.h>=14)return true;
+ if(t.dow===6&&t.h<12)return true;
+ return false;
+}
+function parkIndex(){for(var i=0;i<SECS.length;i++)if(SECS[i].park)return i;return -1;}
+function homeIndex(){var i=parkWindow()?parkIndex():-1;return i>=0?i:0;}
+
+/* ---------- who is staying in this room ---------- */
+var SB_URL="https://yztfmdrodxgmamamhshf.supabase.co",
+    SB_KEY="sb_publishable_cywx6nLhT1MLMiYV_Dmrnw_K5R0Ycdq";
+var GUEST=null,guestT=null;
+function nightsBetween(a,b){
+ var ms=new Date(b+"T00:00:00")-new Date(a+"T00:00:00");
+ return Math.max(0,Math.round(ms/86400000));
+}
+function fmtDay(iso){
+ try{return new Intl.DateTimeFormat(LANG==="en"?"en-GB":"ms-MY",{day:"numeric",month:"short"}).format(new Date(iso+"T00:00:00"));}
+ catch(e){return iso;}
+}
+function fetchGuest(){
+ if(!PROP||!ROOM)return;
+ var url=SB_URL+"/rest/v1/rpc/tv_room_guest";
+ fetch(url,{method:"POST",headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"},
+   body:JSON.stringify({p_property:PROP,p_room:String(ROOM)})})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(d){
+    var row=Array.isArray(d)?d[0]:d;
+    GUEST=(row&&row.guest_name)?row:null;
+    if(CUR===0||SECS[CUR]&&SECS[CUR].home)showSection(CUR);
+  })
+  .catch(function(){GUEST=null;});
+}
+/* refresh once a day at 2pm, when the next guest has checked in */
+function scheduleGuest(){
+ clearTimeout(guestT);
+ var t=myParts(),mins=(14*60)-(t.h*60+t.m);
+ if(mins<=0)mins+=24*60;
+ guestT=setTimeout(function(){fetchGuest();scheduleGuest();},mins*60000+5000);
+}
 
 /* ---------- auto-rotate through the cards ---------- */
 var AUTO_MS=10000,RESUME_MS=60000,autoT=null,resumeT=null,idleT=null,AUTO=true;
@@ -773,14 +847,17 @@ function autoStep(){
  if(!AUTO)return;
  var n=CUR+1;if(n>=SECS.length)n=0;
  showSection(n);
+ if(parkWindow()&&SECS[n]&&SECS[n].park){AUTO=false;clearInterval(autoT);autoT=null;
+  var bar=document.querySelector("#rail .autobar");if(bar)bar.parentNode.removeChild(bar);}
 }
 function autoStart(){
+ if(parkWindow()&&SECS[CUR]&&SECS[CUR].park){AUTO=false;clearInterval(autoT);autoT=null;return;}
  AUTO=true;clearInterval(autoT);autoT=setInterval(autoStep,AUTO_MS);markAuto();
 }
 function autoStop(){
  AUTO=false;clearInterval(autoT);autoT=null;
  var old=document.querySelector("#rail .autobar");if(old)old.parentNode.removeChild(old);
- clearTimeout(resumeT);resumeT=setTimeout(function(){showSection(0);autoStart();},RESUME_MS);
+ clearTimeout(resumeT);resumeT=setTimeout(function(){showSection(homeIndex());autoStart();},RESUME_MS);
 }
 function activity(){
  document.body.classList.remove("idle");
@@ -805,13 +882,12 @@ document.addEventListener("webkitfullscreenchange",fsLabel);
 document.getElementById("fsBtn").addEventListener("click",toggleFS);
 document.getElementById("tvBtn").addEventListener("click",function(){
  autoStop();clearTimeout(resumeT);
- if(fsOn())toggleFS();
  document.getElementById("tvoff").hidden=false;
  document.getElementById("tvBack").focus();
 });
 document.getElementById("tvBack").addEventListener("click",function(){
  document.getElementById("tvoff").hidden=true;
- showSection(0);autoStart();
+ showSection(homeIndex());autoStart();
 });
 
 /* ---------- clock ---------- */
@@ -821,12 +897,19 @@ function tick(){
  catch(e){var d=new Date();el.textContent=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
 }
 tick();setInterval(tick,20000);
+var lastPark=null;
+setInterval(function(){
+ var now=parkWindow();
+ if(lastPark===null){lastPark=now;return;}
+ if(now!==lastPark){lastPark=now;if(AUTO||now){showSection(homeIndex());autoStart();}}
+},60000);
 
 (function start(){
  var l=store(LKEY);if(l==="en"||l==="ms")LANG=l;
  var saved=(store(KEY)||"").split("|");
- if(saved[0]&&PROPS[saved[0]]&&saved[1]){render(saved[0],saved[1]);autoStart();}
- else{render("inn","1");openSetup();}
+ if(saved[0]&&PROPS[saved[0]]&&saved[1]){
+  render(saved[0],saved[1]);showSection(homeIndex());autoStart();fetchGuest();scheduleGuest();
+ } else {render("inn","1");openSetup();}
 })();
 </script>
 
