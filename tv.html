@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0A1330">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="D'Aleena">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" href="/favicon-192.png">
 <title>D'Aleena Guest TV</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap">
@@ -155,7 +160,7 @@ figcaption b{font-family:var(--display);font-weight:600;color:var(--teal);displa
   gap:8px;overflow-x:auto;overflow-y:hidden;padding-top:11px;padding-bottom:3px;
   border-top:1px solid var(--line);scrollbar-width:none}
 .rail::-webkit-scrollbar{display:none}
-.rcard{min-width:0;text-align:left;font:inherit;color:var(--fg);cursor:pointer;
+.rcard{position:relative;overflow:hidden;min-width:0;text-align:left;font:inherit;color:var(--fg);cursor:pointer;
   background:rgba(21,31,71,.6);border:1px solid var(--line);border-radius:13px;backdrop-filter:blur(10px);
   padding:9px 11px;display:flex;flex-direction:column;gap:3px;
   transition:background .14s,border-color .14s,transform .14s}
@@ -170,10 +175,23 @@ figcaption b{font-family:var(--display);font-weight:600;color:var(--teal);displa
 .rcard:focus{outline:3px solid var(--teal);outline-offset:3px;transform:translateY(-3px)}
 @media (prefers-reduced-motion:reduce){.rcard{transition:none}.rcard:focus{transform:none}}
 
+.autobar{position:absolute;left:0;bottom:0;height:3px;width:0;background:#06231A;opacity:.5;
+  animation:autofill 10s linear forwards;pointer-events:none}
+@keyframes autofill{from{width:0}to{width:100%}}
+@media (prefers-reduced-motion:reduce){.autobar{animation:none;width:100%}}
+body.idle{cursor:none}
+.tvoff{position:fixed;inset:0;z-index:8;background:#0A1330;display:grid;place-items:center;padding:24px}
+.tvoff-card{width:min(640px,100%);text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center}
+.tvoff-card h2{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,3.4vw,2.6rem);line-height:1.12;text-wrap:balance}
+.tvoff-card p{margin:0;color:var(--muted);font-size:clamp(.95rem,1.5vw,1.3rem);line-height:1.6;max-width:46ch}
+.tvoff-card p b{color:var(--teal);font-family:var(--display);font-weight:700}
+.tvoff-card .save{width:min(320px,100%)}
 .foot{flex:0 0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:clamp(.7rem,.94vw,.86rem)}
 .foot .dot{color:var(--teal)}
-.setup-btn{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:.95em;padding:5px 13px;border-radius:999px;cursor:pointer}
+.fbtns{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap}
+.setup-btn{background:transparent;border:1px solid var(--line);color:var(--muted);font:inherit;font-size:.95em;padding:5px 13px;border-radius:999px;cursor:pointer}
 .setup-btn:hover,.setup-btn:focus{border-color:var(--teal);color:var(--teal)}
+.setup-btn.key{border-color:rgba(47,191,148,.45);color:var(--teal)}
 
 /* ---- setup ---- */
 .setup{position:fixed;inset:0;z-index:9;background:rgba(10,19,48,.97);display:grid;place-items:center;padding:24px}
@@ -222,7 +240,19 @@ select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:2
     <span>kbkcitrawaja.my</span>
     <span class="dot">&bull;</span>
     <span id="footHelp"></span>
-    <button class="setup-btn" id="openSetup" type="button"></button>
+    <span class="fbtns">
+      <button class="setup-btn" id="fsBtn" type="button"></button>
+      <button class="setup-btn key" id="tvBtn" type="button"></button>
+      <button class="setup-btn" id="openSetup" type="button"></button>
+    </span>
+  </div>
+</div>
+
+<div class="tvoff" id="tvoff" hidden>
+  <div class="tvoff-card">
+    <h2 id="tvoffTitle"></h2>
+    <p id="tvoffLead"></p>
+    <button class="save" id="tvBack" type="button"></button>
   </div>
 </div>
 
@@ -260,7 +290,14 @@ var UI={
             en:"Choose the property and room once. This TV will remember it every time it is switched on."},
  lblProp:{ms:"Lokasi",en:"Property"},
  lblRoom:{ms:"Bilik",en:"Room"},
- save:{ms:"Simpan & paparkan",en:"Save & show"}
+ save:{ms:"Simpan & paparkan",en:"Save & show"},
+ fsOn:{ms:"Skrin penuh",en:"Full screen"},
+ fsOff:{ms:"Keluar skrin penuh",en:"Exit full screen"},
+ tv:{ms:"Tonton TV",en:"Watch TV"},
+ tvTitle:{ms:"Menonton siaran TV",en:"Watching TV channels"},
+ tvLead:{ms:"Tekan butang <b>SOURCE</b> atau <b>INPUT</b> pada alat kawalan TV untuk bertukar ke siaran TV atau dekoder.",
+         en:"Press <b>SOURCE</b> or <b>INPUT</b> on the TV remote to switch over to TV channels or your decoder."},
+ tvBack:{ms:"Kembali ke skrin bilik",en:"Back to the room screen"}
 };
 
 var BAN=[
@@ -520,6 +557,7 @@ function showSection(i){
   b.setAttribute("aria-current",j===i?"true":"false");});
  var act=document.querySelector('#rail .rcard[aria-current="true"]');
  if(act&&act.scrollIntoView)act.scrollIntoView({block:"nearest",inline:"nearest"});
+ markAuto();
 }
 function setBackdrop(){
  var src=roomPhoto(PROP,ROOM),el=document.getElementById("bgPhoto"),fall=document.getElementById("bgFall");
@@ -534,6 +572,11 @@ function paintUI(){
  document.getElementById("lblProp").textContent=T(UI.lblProp);
  document.getElementById("lblRoom").textContent=T(UI.lblRoom);
  document.getElementById("saveSetup").textContent=T(UI.save);
+ document.getElementById("fsBtn").textContent=T(fsOn()?UI.fsOff:UI.fsOn);
+ document.getElementById("tvBtn").textContent=T(UI.tv);
+ document.getElementById("tvoffTitle").textContent=T(UI.tvTitle);
+ document.getElementById("tvoffLead").innerHTML=T(UI.tvLead);
+ document.getElementById("tvBack").textContent=T(UI.tvBack);
  Array.prototype.forEach.call(document.querySelectorAll("#langBar button"),function(b){
   b.setAttribute("aria-pressed",b.getAttribute("data-lang")===LANG?"true":"false");});
 }
@@ -566,6 +609,7 @@ document.getElementById("rail").addEventListener("click",function(e){
 function rail(){return Array.prototype.slice.call(document.querySelectorAll("#rail .rcard"));}
 document.addEventListener("keydown",function(e){
  if(!document.getElementById("setup").hidden)return;
+ if(!document.getElementById("tvoff").hidden)return;
  var k=e.key,stage=document.getElementById("stage"),inLang=document.activeElement&&document.activeElement.closest("#langBar");
  if(k==="ArrowRight"||k==="ArrowLeft"){
   e.preventDefault();
@@ -614,7 +658,60 @@ document.getElementById("selProp").addEventListener("change",fillRooms);
 document.getElementById("openSetup").addEventListener("click",openSetup);
 document.getElementById("saveSetup").addEventListener("click",function(){
  var k=document.getElementById("selProp").value,r=document.getElementById("selRoom").value;
- store(KEY,k+"|"+r);document.getElementById("setup").hidden=true;CUR=0;render(k,r);
+ store(KEY,k+"|"+r);document.getElementById("setup").hidden=true;CUR=0;render(k,r);autoStart();
+});
+
+/* ---------- auto-rotate through the cards ---------- */
+var AUTO_MS=10000,RESUME_MS=60000,autoT=null,resumeT=null,idleT=null,AUTO=true;
+function markAuto(){
+ var old=document.querySelector("#rail .autobar");if(old)old.parentNode.removeChild(old);
+ if(!AUTO)return;
+ var c=document.querySelector('#rail .rcard[aria-current="true"]');if(!c)return;
+ var bar=document.createElement("i");bar.className="autobar";c.appendChild(bar);
+}
+function autoStep(){
+ if(!AUTO)return;
+ var n=CUR+1;if(n>=SECS.length)n=0;
+ showSection(n);
+}
+function autoStart(){
+ AUTO=true;clearInterval(autoT);autoT=setInterval(autoStep,AUTO_MS);markAuto();
+}
+function autoStop(){
+ AUTO=false;clearInterval(autoT);autoT=null;
+ var old=document.querySelector("#rail .autobar");if(old)old.parentNode.removeChild(old);
+ clearTimeout(resumeT);resumeT=setTimeout(function(){showSection(0);autoStart();},RESUME_MS);
+}
+function activity(){
+ document.body.classList.remove("idle");
+ clearTimeout(idleT);idleT=setTimeout(function(){document.body.classList.add("idle");},4000);
+ autoStop();
+}
+["keydown","mousedown","touchstart","wheel"].forEach(function(ev){
+ document.addEventListener(ev,activity,{passive:true});
+});
+
+/* ---------- full screen & watch TV ---------- */
+function fsOn(){return !!(document.fullscreenElement||document.webkitFullscreenElement);}
+function toggleFS(){
+ try{
+  if(fsOn()){(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document);}
+  else{var e=document.documentElement;(e.requestFullscreen||e.webkitRequestFullscreen||function(){}).call(e);}
+ }catch(err){}
+}
+function fsLabel(){document.getElementById("fsBtn").textContent=T(fsOn()?UI.fsOff:UI.fsOn);}
+document.addEventListener("fullscreenchange",fsLabel);
+document.addEventListener("webkitfullscreenchange",fsLabel);
+document.getElementById("fsBtn").addEventListener("click",toggleFS);
+document.getElementById("tvBtn").addEventListener("click",function(){
+ autoStop();clearTimeout(resumeT);
+ if(fsOn())toggleFS();
+ document.getElementById("tvoff").hidden=false;
+ document.getElementById("tvBack").focus();
+});
+document.getElementById("tvBack").addEventListener("click",function(){
+ document.getElementById("tvoff").hidden=true;
+ showSection(0);autoStart();
 });
 
 /* ---------- clock ---------- */
@@ -628,7 +725,7 @@ tick();setInterval(tick,20000);
 (function start(){
  var l=store(LKEY);if(l==="en"||l==="ms")LANG=l;
  var saved=(store(KEY)||"").split("|");
- if(saved[0]&&PROPS[saved[0]]&&saved[1])render(saved[0],saved[1]);
+ if(saved[0]&&PROPS[saved[0]]&&saved[1]){render(saved[0],saved[1]);autoStart();}
  else{render("inn","Deluxe Family");openSetup();}
 })();
 </script>
