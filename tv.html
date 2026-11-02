@@ -277,7 +277,7 @@ select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:2
   <div class="setup-card">
     <h2 id="codeTitle"></h2>
     <p id="codeLead"></p>
-    <div class="dots" id="codeDots"><i></i><i></i><i></i></div>
+    <div class="dots" id="codeDots"></div>
     <div class="pad" id="codePad"></div>
     <button class="setup-btn" id="codeCancel" type="button"></button>
   </div>
@@ -343,7 +343,7 @@ var UI={
  fsNow:{ms:"Hidupkan",en:"Turn on"},
  fsOffNow:{ms:"Matikan",en:"Turn off"}
 };
-var ADMIN_CODE="007";
+var ADMIN_CODE="456321";
 
 var BAN=[
  {ms:"Dilarang merokok di dalam rumah.",en:"No smoking inside the house.",no:1},
@@ -752,7 +752,9 @@ function codeKey(ch){
  }
 }
 function openCode(){
- codeBuf="";paintDots(false);
+ codeBuf="";
+ document.getElementById("codeDots").innerHTML=ADMIN_CODE.split("").map(function(){return "<i></i>";}).join("");
+ paintDots(false);
  document.getElementById("codeLead").textContent=T(UI.codeLead);
  var pad=document.getElementById("codePad");
  pad.innerHTML=["1","2","3","4","5","6","7","8","9","","0","back"].map(function(k){
@@ -905,9 +907,21 @@ setInterval(function(){
  if(now!==lastPark){lastPark=now;if(AUTO||now){showSection(homeIndex());autoStart();}}
 },60000);
 
+/* kbkcitrawaja.my/tv?p=inn&r=2  pins this screen to one room for good */
+function fromURL(){
+ var raw=(location.search||"").replace(/^\?/,"")+"&"+(location.hash||"").replace(/^#/,""),o={};
+ raw.split(/[&,;]/).forEach(function(kv){
+  var i=kv.indexOf("=");if(i>0)o[decodeURIComponent(kv.slice(0,i)).toLowerCase()]=decodeURIComponent(kv.slice(i+1));
+ });
+ var pk=o.p||o.prop||o.property,rn=o.r||o.room;
+ if(pk&&rn&&PROPS[pk]&&roomRec(pk,rn).n===String(rn))return {p:pk,r:String(rn)};
+ return null;
+}
 (function start(){
  var l=store(LKEY);if(l==="en"||l==="ms")LANG=l;
- var saved=(store(KEY)||"").split("|");
+ var fixed=fromURL();
+ if(fixed)store(KEY,fixed.p+"|"+fixed.r);
+ var saved=fixed?[fixed.p,fixed.r]:(store(KEY)||"").split("|");
  if(saved[0]&&PROPS[saved[0]]&&saved[1]){
   render(saved[0],saved[1]);showSection(homeIndex());autoStart();fetchGuest();scheduleGuest();
  } else {render("inn","1");openSetup();}
