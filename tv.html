@@ -827,12 +827,13 @@ function fetchGuest(){
   })
   .catch(function(){GUEST=null;});
 }
-/* refresh once a day at 2pm, when the next guest has checked in */
+/* refresh at 2pm (after check-out) and 8pm (after late arrivals) */
+var REFRESH_AT=[14,20];
 function scheduleGuest(){
  clearTimeout(guestT);
- var t=myParts(),mins=(14*60)-(t.h*60+t.m);
- if(mins<=0)mins+=24*60;
- guestT=setTimeout(function(){fetchGuest();scheduleGuest();},mins*60000+5000);
+ var t=myParts(),now=t.h*60+t.m,best=null;
+ REFRESH_AT.forEach(function(h){var m=h*60-now;if(m<=0)m+=1440;if(best===null||m<best)best=m;});
+ guestT=setTimeout(function(){fetchGuest();scheduleGuest();},best*60000+5000);
 }
 
 /* ---------- auto-rotate through the cards ---------- */
